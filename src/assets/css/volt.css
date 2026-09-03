@@ -213,8 +213,6 @@
 [data-theme="dark"] .slide { background: var(--ink); color: #E7E9ED; }
 [data-theme="dark"] .slide.invert { background: var(--paper); color: var(--body-txt); }
 
-.slide.on-dark { }
-
 /* ---- head / body / foot ---- */
 
 .s-head {
