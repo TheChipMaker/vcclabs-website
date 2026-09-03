@@ -84,14 +84,19 @@ Locked:
 
 | Token | Light | Dark |
 | --- | --- | --- |
-| Background | `#FFFFFF` | `#0B1826` |
-| Surface | `#FFFFFF` | `#12283D` |
-| Ink | `#0E2033` | `#E8EEF4` |
-| Muted | `#5A6B7D` | `#93A5B8` |
-| Line | `#C9D3DD` | `#24405B` |
-| Accent | `#D4520F` | `#F26522` |
+| Background | `#FDFAF5` | `#0C1B2E` |
+| Surface | `#FFFDFA` | `#152C45` |
+| Ink | `#0A1E38` | `#F2EDE4` |
+| Muted | `#6B6558` | `#9CA9B4` |
+| Line | `#DCD3C6` | `#2A4767` |
+| Accent | `#E85D0C` | `#FF6A13` |
+| Accent soft | `rgba(232,93,12,0.09)` | `rgba(255,106,19,0.14)` |
 
-Deep navy, safety orange, white. The accent shifts between the two modes so contrast stays legible in both — do not use one hex for both themes.
+Deep navy, safety orange, warm paper. The accent shifts between the two modes so contrast stays legible in both — do not use one hex for both themes.
+
+**The neutrals are warm on purpose.** Pure white backgrounds with blue-grey muted text read clinical and lifeless. Light mode uses warm paper (`#FDFAF5`) with sand-toned muted and line colours; the navy stays cold but sits on something warm. Do not "clean this up" back to `#FFFFFF` / grey — that was the original palette and it was the problem.
+
+`--accent-soft` is the tint used for hover fills on cards. Use it rather than lowering opacity on the accent itself.
 
 **Typography:** IBM Plex Sans for body and headings, IBM Plex Mono for labels, durations, numeric values, and the wordmark. Currently loaded from Google Fonts.
 
