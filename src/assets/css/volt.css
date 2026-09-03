@@ -151,6 +151,7 @@
   letter-spacing: 0.03em;
   color: #fff;
   margin-bottom: 24px;
+  padding-right: 180px;
 }
 
 .volt-index ol {
@@ -181,17 +182,21 @@
 .volt-index li.is-current .n { color: var(--brand-bright); }
 
 .volt-index .close {
-  position: absolute;
-  top: 22px;
-  right: 26px;
-  padding: 10px 16px;
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  z-index: 2;
+  min-height: 48px;
+  padding: 12px 22px;
   background: #1b1f26;
   border: 1px solid #242A32;
-  border-radius: 8px;
+  border-radius: 100px;
   color: var(--chrome-text);
   cursor: pointer;
-  font: 500 13px var(--font-body);
+  font: 500 14px var(--font-body);
 }
+
+.volt-index .close:hover { color: #fff; border-color: var(--brand); }
 
 /* ============================================================
    VccLabs theme — brand tokens and slide layout components.
