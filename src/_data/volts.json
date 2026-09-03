@@ -1,10 +1,10 @@
 [
   {
-    "title": "Buck Converter Fundamentals",
-    "slug": "buck-converter-fundamentals",
+    "title": "The LLC Resonant Converter",
+    "slug": "llc-resonant-converter",
     "subject": "Power Electronics",
-    "minutes": 9,
-    "blurb": "Why the inductor current ramps, where the duty cycle comes from, and how to size the output cap.",
-    "status": "draft"
+    "minutes": 14,
+    "blurb": "Why half-bridge LLC exists, what the tank actually does, and how to read the gain curve without guessing.",
+    "status": "published"
   }
 ]

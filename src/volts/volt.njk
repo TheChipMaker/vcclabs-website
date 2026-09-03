@@ -1,0 +1,91 @@
+---
+pagination:
+  data: voltdata
+  size: 1
+  alias: voltKey
+permalink: "/volts/{{ voltKey }}/"
+layout: base.njk
+eleventyComputed:
+  title: "{{ voltdata[voltKey].title }}"
+  description: "{{ voltdata[voltKey].blurb }}"
+---
+{% set volt = voltdata[voltKey] %}
+
+<div class="volt" data-volt>
+
+  <div class="volt-bar">
+    <span class="volt-bar-title">{{ volt.title }}</span>
+    <span class="volt-progress"><span class="volt-progress-fill" data-volt-fill></span></span>
+    <span class="volt-counter" data-volt-counter></span>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode">
+      <span class="theme-toggle-label"></span>
+    </button>
+  </div>
+
+  <div class="volt-stage" data-volt-stage>
+
+    {% for slide in volt.slides %}
+    <section class="slide slide-{{ slide.type }}" id="{{ slide.id }}" data-slide hidden>
+
+      <header class="slide-head">
+        <span class="slide-eyebrow">{{ slide.eyebrow }}</span>
+        <h2 class="slide-title">{{ slide.title }}</h2>
+        {% if slide.lead %}<p class="slide-lead">{{ slide.lead }}</p>{% endif %}
+      </header>
+
+      {% if slide.type == "parallel" %}
+      <div class="slide-columns">
+        {% for col in slide.columns %}
+        <div class="slide-column is-{{ col.tone }}">
+          <span class="slide-column-label">{{ col.label }}</span>
+          <ul>{% for item in col.items %}<li>{{ item }}</li>{% endfor %}</ul>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if slide.type == "figure" or slide.type == "schematic" %}
+      <div class="slide-figure">
+        {% include "figures/" + slide.figure + ".svg" %}
+        {% if slide.caption %}<p class="slide-caption">{{ slide.caption }}</p>{% endif %}
+      </div>
+      {% endif %}
+
+      {% if slide.legend %}
+      <dl class="slide-legend">
+        {% for row in slide.legend %}
+        <dt>{{ row.part }}</dt>
+        <dd>{{ row.role }}</dd>
+        {% endfor %}
+      </dl>
+      {% endif %}
+
+      {% if slide.formulas %}
+      <div class="slide-formulas">
+        {% for f in slide.formulas %}
+        <div class="formula">
+          <span class="formula-label">{{ f.label }}</span>
+          <span class="formula-expression">{{ f.expression }}</span>
+          <span class="formula-note">{{ f.note }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if slide.points %}
+      <ul class="slide-points">{% for p in slide.points %}<li>{{ p }}</li>{% endfor %}</ul>
+      {% endif %}
+
+      {% if slide.note %}<p class="slide-note">{{ slide.note }}</p>{% endif %}
+
+    </section>
+    {% endfor %}
+
+  </div>
+
+  <div class="volt-nav">
+    <button class="volt-btn" type="button" data-volt-prev>← Back</button>
+    <button class="volt-btn is-primary" type="button" data-volt-next>Next →</button>
+  </div>
+
+</div>
