@@ -84,7 +84,7 @@
       "titleSize": 38,
       "leftFlex": 1.35,
       "rightFlex": 1,
-      "figure": "llc-topology",
+      	"figure": "topology",
       "legend": [
         { "part": "Q1, Q2", "role": "Half-bridge at fixed 50% duty with dead time. Regulation comes from frequency, never duty." },
         { "part": "Cr", "role": "Resonant capacitor. Also blocks DC, so the transformer never sees a DC bias." },
@@ -180,7 +180,7 @@
       "titleSize": 38,
       "leftFlex": 1.3,
       "rightFlex": 0.9,
-      "widget": "llc-gain-curve",
+      "widget": "gain-curve",
       "widgetTitle": "Interactive LLC gain curve",
       "points": [
         { "text": "<b>Above f<sub>r</sub></b> the series branch is inductive and dominates. It drops most of the voltage, so gain falls below 1." },
@@ -198,7 +198,7 @@
       "titleSize": 38,
       "leftFlex": 1.3,
       "rightFlex": 0.9,
-      "widget": "llc-gain-curve",
+      "widget": "gain-curve",
       "widgetTitle": "Interactive LLC gain curve — load sweep",
       "points": [
         { "text": "<b>Q is the load.</b> Q = √(L<sub>r</sub>/C<sub>r</sub>)/R<sub>ac</sub>. High Q is heavy load, low Q is light load." },
@@ -217,7 +217,7 @@
       "titleSize": 38,
       "leftFlex": 1.3,
       "rightFlex": 0.9,
-      "widget": "llc-gain-curve",
+      "widget": "gain-curve",
       "widgetTitle": "Interactive LLC gain curve — m sweep",
       "points": [
         { "text": "<b>m = (L<sub>r</sub>+L<sub>m</sub>)/L<sub>r</sub>.</b> It fixes the gap between the two resonances: f<sub>m</sub>/f<sub>r</sub> = 1/√m." },
@@ -236,7 +236,7 @@
       "titleSize": 38,
       "leftFlex": 1.35,
       "rightFlex": 0.85,
-      "widget": "llc-regions",
+      "widget": "regions",
       "widgetTitle": "Interactive operating region map",
       "points": [
         { "text": "<b>f<sub>m</sub> and f<sub>r</sub> cut the axis into three.</b> Every LLC design decision is really a decision about which side of these two lines you sit on." },
@@ -289,7 +289,7 @@
       "titleSize": 40,
       "leftFlex": 1.4,
       "rightFlex": 0.85,
-      "widget": "llc-waveforms",
+      "widget": "waveforms",
       "widgetTitle": "Animated LLC waveform explorer",
       "points": [
         { "text": "<b>i<sub>Lr</sub> is close to sinusoidal</b> because the tank rings at f<sub>r</sub> regardless of how fast you switch it." },
@@ -307,7 +307,7 @@
       "titleSize": 38,
       "leftFlex": 1.4,
       "rightFlex": 0.85,
-      "widget": "llc-waveforms",
+      "widget": "waveforms",
       "widgetTitle": "Animated LLC waveform explorer — load sweep",
       "points": [
         { "text": "<b>i<sub>Lm</sub> at turn-off is what discharges C<sub>oss</sub>.</b> Remove it and you lose ZVS — this current is buying the soft transition." },
@@ -358,7 +358,7 @@
       "titleSize": 38,
       "leftFlex": 1.45,
       "rightFlex": 0.8,
-      "widget": "llc-tank-designer",
+      "widget": "tank-designer",
       "widgetTitle": "Interactive LLC tank designer",
       "points": [
         { "text": "<b>Fix n</b> so gain is 1 at the nominal bus. n = (V<sub>in,nom</sub>/2) / V<sub>out</sub>, which parks you at f<sub>r</sub> where the converter is happiest." },

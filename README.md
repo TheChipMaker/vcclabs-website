@@ -100,7 +100,11 @@ Interactive figures are **standalone HTML pages served at `/widgets/<name>/`, em
 
 Why: a widget is a self-contained app with its own CSS and script, and iframing it means a broken widget cannot break the deck. The cost is that widgets do not inherit the page theme — each carries its own dark palette.
 
-To add one: create `src/widgets/<name>.njk` with `permalink: "/widgets/<name>/"` and `layout: null`, then set `"widget": "<name>"` on a `split` slide.
+**Widgets and figures are namespaced by volt slug.** A volt's assets live in `src/widgets/<volt-slug>/` and `src/_includes/figures/<volt-slug>/`, so volts never collide and filenames stay short.
+
+To add a widget: create `src/widgets/<volt-slug>/<name>.njk` — no front matter needed, the permalink is derived from the file path by `src/widgets/widgets.11tydata.js`. Then set `"widget": "<name>"` on a `split` slide.
+
+**Resolution rule:** a bare name (`"gain-curve"`) resolves inside the current volt's folder. A name containing a slash (`"shared/fourier-scrubber"`) is taken as a literal path, which is how genuinely reusable widgets are shared across volts. Put something in `shared/` only once a second volt actually needs it — premature sharing is how you end up with a widget that fits neither caller.
 
 ### Widget rules
 

@@ -80,9 +80,11 @@ eleventyComputed:
           <div class="cols" style="margin-top:18px">
             <div class="col" style="flex:{{ slide.leftFlex or 1 }}">
               {% if slide.widget %}
-              <div class="widget-box"><iframe title="{{ slide.widgetTitle }}" src="/widgets/{{ slide.widget }}/" loading="lazy"></iframe></div>
+              {% set widgetPath = slide.widget if "/" in slide.widget else voltKey + "/" + slide.widget %}
+              <div class="widget-box"><iframe title="{{ slide.widgetTitle }}" src="/widgets/{{ widgetPath }}/" loading="lazy"></iframe></div>
               {% elif slide.figure %}
-              <div class="figure-box">{% include "figures/" + slide.figure + ".svg" %}</div>
+              {% set figurePath = slide.figure if "/" in slide.figure else voltKey + "/" + slide.figure %}
+              <div class="figure-box">{% include "figures/" + figurePath + ".svg" %}</div>
               {% endif %}
             </div>
             <div class="col" style="flex:{{ slide.rightFlex or 1 }}">
