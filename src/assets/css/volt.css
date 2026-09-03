@@ -138,27 +138,44 @@
   inset: 0;
   z-index: 60;
   display: none;
-  padding: 56px;
-  overflow-y: auto;
+  flex-direction: column;
+  overflow: hidden;
   background: rgba(8, 10, 12, 0.94);
   backdrop-filter: blur(6px);
 }
 
-.volt-index.is-open { display: block; }
+.volt-index.is-open { display: flex; }
+
+.volt-index-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 28px;
+  border-bottom: 1px solid #242A32;
+}
 
 .volt-index h2 {
   font: 600 15px var(--font-body);
   letter-spacing: 0.03em;
   color: #fff;
-  margin-bottom: 24px;
-  padding-right: 180px;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .volt-index ol {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   list-style: none;
   max-width: 720px;
+  width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 16px 28px 40px;
 }
 
 .volt-index li { border-top: 1px solid #242A32; }
@@ -182,10 +199,7 @@
 .volt-index li.is-current .n { color: var(--brand-bright); }
 
 .volt-index .close {
-  position: fixed;
-  top: 24px;
-  right: 28px;
-  z-index: 2;
+  flex: none;
   min-height: 48px;
   padding: 12px 22px;
   background: #1b1f26;
