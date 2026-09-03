@@ -47,8 +47,8 @@ eleventyComputed:
           </span>
         </div>
         <div class="s-body">
-          <h1 class="cover-mark">{{ slide.title }}</h1>
-          <p class="cover-sub">{{ slide.lead }}</p>
+          <h1 class="cover-mark">{{ slide.title | safe }}</h1>
+          <p class="cover-sub">{{ slide.lead | safe }}</p>
         </div>
 
         {% else %}
