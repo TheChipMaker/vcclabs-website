@@ -78,7 +78,7 @@ Set by the `type` key in the volt JSON. Adding a type means adding a branch in `
 
 Shared optional keys on every type: `eyebrow`, `title` (accepts HTML, use `<span class="hl">` for the accent), `titleSize`, `lead`, `points`, `callout`, `ref`, `surface`.
 
-`"surface": "invert"` flips a single slide against the current theme — dark slide in light mode, light slide in dark mode. Use it sparingly as a beat between widget-heavy slides.
+`"surface": "invert"` flips a single slide against the current theme — dark slide in light mode, light slide in dark mode. **Currently unused.** It was tried as a visual beat between widget-heavy slides and read as a bug rather than a rhythm, so no slide sets it. Keep this in mind before reaching for it again.
 
 Point tones: `ready` (green), `fault` (red), default (brand green). Column tones: `gain` and `cost`.
 
