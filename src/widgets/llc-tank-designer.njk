@@ -1,0 +1,226 @@
+---
+permalink: "/widgets/llc-tank-designer/"
+layout: null
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLC tank designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --brand:#15B86A; --brand-b:#2BD27D;
+  --signal:#2C66EA; --fault:#EF4444; --warn:#F5C542;
+  --txt:#E7E9ED; --mut:#8A94A1; --mut2:#B7BEC9;
+  --panel:#161A20; --panel2:#1F242C; --line:#2a3038;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:transparent;color:var(--txt);font-family:var(--body);
+  display:flex;flex-direction:column;gap:8px;padding:10px;user-select:none;overflow:hidden}
+
+.top-row{flex:1;min-height:0;display:flex;gap:9px}
+
+.plot{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:7px 9px;display:flex;flex-direction:column;min-width:0}
+.plot .cap{font:600 9px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:3px}
+.plot svg{flex:1;width:100%}
+.grid-l{stroke:#22282f;stroke-width:1}
+.curve{stroke:#4a5563;stroke-width:1.3;fill:none}
+.curve.sel{stroke:var(--brand-b);stroke-width:2.3}
+.need{stroke:var(--warn);stroke-width:1.4;stroke-dasharray:4 3}
+.fr-line{stroke:var(--signal);stroke-width:1.2;stroke-dasharray:5 4}
+.op{fill:var(--brand-b);stroke:#0e1116;stroke-width:2}
+.opmin{fill:var(--warn);stroke:#0e1116;stroke-width:2}
+.ax{font:500 8px var(--mono);fill:var(--mut)}
+.tag{font:600 9px var(--mono)}
+
+.out{flex:none;width:150px;display:flex;flex-direction:column;gap:6px}
+.res{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 9px;
+  display:flex;justify-content:space-between;align-items:baseline}
+.res .k{font:600 9px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.res .v{font:600 15px var(--mono);color:var(--txt)}
+.res .v small{font-size:10px;color:var(--mut2)}
+.verdict{border-radius:9px;padding:8px 9px;font:600 10.5px var(--body);text-align:center;
+  margin-top:auto;line-height:1.35}
+
+.ctl{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sld{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px 10px}
+.sld .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.sld .nm{font:600 9px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--mut2)}
+.sld .rd{font:600 12px var(--mono);color:var(--brand-b)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#2a3038;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+</style>
+</head>
+<body>
+
+<div class="top-row">
+  <div class="plot">
+    <div class="cap">Gain curve at full load, with the required operating points</div>
+    <svg id="plot" viewBox="0 0 400 180" preserveAspectRatio="none"></svg>
+  </div>
+  <div class="out">
+    <div class="res"><span class="k">n</span><span class="v" id="n">—</span></div>
+    <div class="res"><span class="k">L<sub>r</sub></span><span class="v" id="lr">—</span></div>
+    <div class="res"><span class="k">C<sub>r</sub></span><span class="v" id="cr">—</span></div>
+    <div class="res"><span class="k">L<sub>m</sub></span><span class="v" id="lm">—</span></div>
+    <div class="res"><span class="k">M needed</span><span class="v" id="mneed">—</span></div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+</div>
+
+<div class="ctl">
+  <div class="sld">
+    <div class="top"><span class="nm">V<sub>in</sub> min</span><span class="rd" id="vminrd">330 V</span></div>
+    <input type="range" id="vmin" min="250" max="390" step="5" value="330">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">P<sub>out</sub></span><span class="rd" id="prd">300 W</span></div>
+    <input type="range" id="pout" min="50" max="1000" step="10" value="300">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">f<sub>r</sub></span><span class="rd" id="frrd">100 kHz</span></div>
+    <input type="range" id="fr" min="50" max="500" step="5" value="100">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">m = (L<sub>r</sub>+L<sub>m</sub>)/L<sub>r</sub></span><span class="rd" id="mrd">6.0</span></div>
+    <input type="range" id="m" min="2.5" max="12" step="0.1" value="6">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">Q at full load</span><span class="rd" id="qrd">0.40</span></div>
+    <input type="range" id="q" min="0.05" max="1" step="0.01" value="0.4">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">V<sub>out</sub></span><span class="rd" id="vordrd">48 V</span></div>
+    <input type="range" id="vout" min="12" max="60" step="1" value="48">
+  </div>
+</div>
+
+<script>
+/* Half-bridge LLC, FHA design equations.
+   M = n Vout / (Vin/2).  n chosen so M = 1 at nominal 390 V bus.
+   Rac = 8 n^2 Vout^2 / (pi^2 Pout)
+   Q   = sqrt(Lr/Cr) / Rac   ->  Lr = Q Rac / (2 pi fr),  Cr = 1/(2 pi fr Q Rac)
+   Lm  = (m - 1) Lr                                                          */
+
+var VNOM = 390;
+
+function gain(fn, m, Q) {
+  var a = fn * fn * (m - 1);
+  var b = m * fn * fn - 1;
+  var c = fn * (fn * fn - 1) * (m - 1) * Q;
+  return a / Math.sqrt(b * b + c * c);
+}
+
+var W = 400, H = 180, PADL = 26, PADR = 8, PADT = 10, PADB = 18;
+var FN0 = 0.4, FN1 = 1.8, G1 = 2.2;
+
+var $ = function (id) { return document.getElementById(id); };
+var plot = $("plot");
+var X = function (f) { return PADL + (f - FN0) / (FN1 - FN0) * (W - PADL - PADR); };
+var Y = function (g) { return PADT + (1 - g / G1) * (H - PADT - PADB); };
+
+function eng(v, unit) {
+  var a = Math.abs(v);
+  if (a >= 1e-3) return (v * 1e3).toFixed(1) + " <small>m" + unit + "</small>";
+  if (a >= 1e-6) return (v * 1e6).toFixed(1) + " <small>µ" + unit + "</small>";
+  return (v * 1e9).toFixed(1) + " <small>n" + unit + "</small>";
+}
+
+function path(m, Q) {
+  var p = [];
+  for (var f = FN0; f <= FN1 + 1e-9; f += 0.005) {
+    var g = gain(f, m, Q);
+    if (isFinite(g)) p.push(X(f).toFixed(1) + "," + Y(Math.min(g, G1)).toFixed(1));
+  }
+  return p.join(" ");
+}
+
+function render() {
+  var vmin = +$("vmin").value, pout = +$("pout").value, fr = +$("fr").value * 1e3;
+  var m = +$("m").value, Q = +$("q").value, vout = +$("vout").value;
+
+  $("vminrd").textContent = vmin + " V";
+  $("prd").textContent = pout + " W";
+  $("frrd").textContent = (fr / 1e3).toFixed(0) + " kHz";
+  $("mrd").textContent = m.toFixed(1);
+  $("qrd").textContent = Q.toFixed(2);
+  $("vordrd").textContent = vout + " V";
+
+  var n = (VNOM / 2) / vout;
+  var Rac = 8 * n * n * vout * vout / (Math.PI * Math.PI * pout);
+  var Lr = Q * Rac / (2 * Math.PI * fr);
+  var Cr = 1 / (2 * Math.PI * fr * Q * Rac);
+  var Lm = (m - 1) * Lr;
+
+  var Mneed = n * vout / (vmin / 2);
+  var Mnom = n * vout / (VNOM / 2);
+
+  var pk = 0, fpk = 1;
+  for (var f = FN0; f <= FN1; f += 0.002) {
+    var g = gain(f, m, Q);
+    if (g > pk) { pk = g; fpk = f; }
+  }
+
+  /* find the fn that delivers Mneed, searching down from fr */
+  var fop = null;
+  for (var f2 = 1; f2 >= FN0; f2 -= 0.002) {
+    if (gain(f2, m, Q) >= Mneed) { fop = f2; break; }
+  }
+
+  $("n").textContent = n.toFixed(2);
+  $("lr").innerHTML = eng(Lr, "H");
+  $("cr").innerHTML = eng(Cr, "F");
+  $("lm").innerHTML = eng(Lm, "H");
+  $("mneed").textContent = Mneed.toFixed(2);
+
+  var v = $("verdict");
+  var margin = pk / Mneed;
+  if (!fop || margin < 1.0) {
+    v.innerHTML = "Cannot reach low line<br>peak gain " + pk.toFixed(2) + " &lt; " + Mneed.toFixed(2);
+    v.style.background = "rgba(239,68,68,.16)"; v.style.color = "#EF4444";
+  } else if (margin < 1.15) {
+    v.innerHTML = "Marginal — only " + ((margin - 1) * 100).toFixed(0) + "% gain margin";
+    v.style.background = "rgba(245,197,66,.16)"; v.style.color = "#F5C542";
+  } else {
+    v.innerHTML = "Workable — " + ((margin - 1) * 100).toFixed(0) + "% margin<br>f<sub>min</sub> = " + (fop * fr / 1e3).toFixed(0) + " kHz";
+    v.style.background = "rgba(43,210,125,.16)"; v.style.color = "#2BD27D";
+  }
+
+  var s = "";
+  for (var g2 = 0; g2 <= G1; g2 += 0.4) {
+    s += '<line class="grid-l" x1="' + PADL + '" y1="' + Y(g2) + '" x2="' + (W - PADR) + '" y2="' + Y(g2) + '"/>';
+    s += '<text class="ax" x="' + (PADL - 4) + '" y="' + (Y(g2) + 3) + '" text-anchor="end">' + g2.toFixed(1) + '</text>';
+  }
+
+  [0.15, 0.3, 0.6, 0.9].forEach(function (qq) {
+    s += '<polyline class="curve" points="' + path(m, qq) + '"/>';
+  });
+  s += '<polyline class="curve sel" points="' + path(m, Q) + '"/>';
+
+  s += '<line class="need" x1="' + PADL + '" y1="' + Y(Mneed) + '" x2="' + (W - PADR) + '" y2="' + Y(Mneed) + '"/>';
+  s += '<text class="tag" fill="#F5C542" x="' + (PADL + 3) + '" y="' + (Y(Mneed) - 4) + '">M needed at low line</text>';
+  s += '<line class="fr-line" x1="' + X(1) + '" y1="' + PADT + '" x2="' + X(1) + '" y2="' + Y(0) + '"/>';
+  s += '<text class="tag" fill="#7ea2f5" x="' + (X(1) + 4) + '" y="' + (PADT + 9) + '">fr</text>';
+
+  s += '<circle class="op" cx="' + X(1) + '" cy="' + Y(Math.min(Mnom, G1)) + '" r="4.5"/>';
+  if (fop) s += '<circle class="opmin" cx="' + X(fop) + '" cy="' + Y(Math.min(Mneed, G1)) + '" r="4.5"/>';
+
+  plot.innerHTML = s;
+}
+
+["vmin", "pout", "fr", "m", "q", "vout"].forEach(function (id) {
+  $(id).addEventListener("input", render);
+});
+render();
+</script>
+</body>
+</html>

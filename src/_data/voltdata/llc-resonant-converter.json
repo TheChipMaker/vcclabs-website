@@ -2,7 +2,7 @@
   "title": "The LLC Resonant Converter",
   "subject": "Power Electronics",
   "level": "advanced",
-  "minutes": 14,
+  "minutes": 17,
   "blurb": "Why half-bridge LLC exists, what the tank actually does, and how to read the gain curve without guessing.",
   "prerequisites": [
     "Buck and boost converter operation",
@@ -316,5 +316,115 @@
         { "text": "<b>Light load is the hard case.</b> Drop the load slider and watch the useful current shrink while the circulating current stays put." }
       ],
       "callout": "This is why <b>m</b> from slide 9 and the ZVS window from slide 2 are the same conversation. Choosing m is choosing how much you overpay for soft switching at every operating point."
+    },
+        {
+      "id": "design-variables",
+      "type": "parallel",
+      "ref": "V01-S14",
+      "eyebrow": "The design space",
+      "title": "Three numbers, and every one<br>of them <span class=\"hl\">fights the others</span>",
+      "titleSize": 38,
+      "lead": "Once the turns ratio is fixed, an LLC tank is fully described by f<sub>r</sub>, m and Q. There is no configuration that wins on all three axes — the design is choosing which compromise you can live with.",
+      "columns": [
+        {
+          "label": "Push it this way",
+          "tone": "gain",
+          "items": [
+            "<b>Higher f<sub>r</sub></b> — smaller transformer and output cap",
+            "<b>Smaller m</b> — wide gain range, survives deep brownout",
+            "<b>Lower Q</b> — taller gain peak, easier to hit low line",
+            "<b>Larger n</b> — lower primary current for the same power"
+          ]
+        },
+        {
+          "label": "And this is the bill",
+          "tone": "cost",
+          "items": [
+            "<b>Higher f<sub>r</sub></b> — core and driver losses climb, layout gets unforgiving",
+            "<b>Smaller m</b> — more circulating current, worse full-load efficiency",
+            "<b>Lower Q</b> — Q is set by the load, not by you; it is a constraint, not a knob",
+            "<b>Larger n</b> — more gain demanded from the tank at low line"
+          ]
+        }
+      ],
+      "callout": "Q is the one people get wrong. <b>You do not choose Q — the load chooses it.</b> What you choose is Lr/Cr, and Q is what that ratio becomes at full load. Design at the worst case: full load, low line."
+    },
+    {
+      "id": "procedure",
+      "type": "split",
+      "ref": "V01-S15",
+      "eyebrow": "The procedure",
+      "title": "From a spec sheet<br>to L<sub>r</sub>, C<sub>r</sub> and L<sub>m</sub>",
+      "titleSize": 38,
+      "leftFlex": 1.45,
+      "rightFlex": 0.8,
+      "widget": "llc-tank-designer",
+      "widgetTitle": "Interactive LLC tank designer",
+      "points": [
+        { "text": "<b>Fix n</b> so gain is 1 at the nominal bus. n = (V<sub>in,nom</sub>/2) / V<sub>out</sub>, which parks you at f<sub>r</sub> where the converter is happiest." },
+        { "text": "<b>Find the gain you need</b> at the low-line corner: M = nV<sub>out</sub> / (V<sub>in,min</sub>/2)." },
+        { "text": "<b>Pick m and Q</b> so the peak of the full-load curve clears that gain with margin. Never design to the peak — FHA overestimates it." },
+        { "text": "<b>Solve the tank.</b> R<sub>ac</sub> = 8n²V<sub>out</sub>²/π²P<sub>out</sub>, then L<sub>r</sub> = QR<sub>ac</sub>/2πf<sub>r</sub>, C<sub>r</sub> = 1/2πf<sub>r</sub>QR<sub>ac</sub>, L<sub>m</sub> = (m−1)L<sub>r</sub>.", "tone": "ready" }
+      ],
+      "callout": "Drag <b>V<sub>in</sub> min</b> down and watch the required gain line rise until the curve can no longer reach it. That collision is the real boundary of your design."
+    },
+    {
+      "id": "practice",
+      "type": "parallel",
+      "ref": "V01-S16",
+      "surface": "invert",
+      "eyebrow": "In practice",
+      "title": "What the equations<br><span class=\"hl\">do not tell you</span>",
+      "titleSize": 40,
+      "lead": "FHA gets you a tank that works at the nominal operating point. Everything below is what turns that tank into a product, and none of it falls out of the gain equation.",
+      "columns": [
+        {
+          "label": "Things that bite",
+          "tone": "cost",
+          "items": [
+            "<b>Startup.</b> Output is at zero, so demanded gain is enormous. Soft-start by sweeping frequency down from well above f<sub>r</sub>.",
+            "<b>No-load regulation.</b> The light-load curve peaks so hard that frequency control runs out of range. Burst mode is the usual answer.",
+            "<b>Dead time versus L<sub>m</sub>.</b> These are one constraint, not two — the magnetising current has to discharge C<sub>oss</sub> inside the dead time."
+          ]
+        },
+        {
+          "label": "Things that surprise you",
+          "tone": "cost",
+          "items": [
+            "<b>Leakage is part of L<sub>r</sub>.</b> Change the winding and you have changed the resonant frequency. Integrated magnetics make this a feature; discrete builds make it a tolerance problem.",
+            "<b>C<sub>r</sub> tolerance moves f<sub>r</sub> directly.</b> Use film, not ceramic — class 2 ceramics lose capacitance under DC bias and temperature.",
+            "<b>Short circuit is region 1.</b> The loop chases gain downward into the capacitive region. A minimum frequency clamp is mandatory, not optional."
+          ]
+        }
+      ],
+      "callout": "The single most common LLC failure in production is not a bad tank. It is a <b>controller with no low-frequency clamp</b> meeting a transient it was never simulated against."
+    },
+    {
+      "id": "close",
+      "type": "equations",
+      "ref": "V01-S17",
+      "eyebrow": "Confused to competent",
+      "title": "What you now know",
+      "titleSize": 44,
+      "lead": "Five ideas carry the entire topology. If these are solid, the datasheets and application notes will read like notes rather than mysteries.",
+      "formulas": [
+        {
+          "label": "The anchor",
+          "expression": "f<span class=\"hl\">r</span> = 1 / 2π√(L<sub>r</sub>C<sub>r</sub>)",
+          "note": "Gain is 1 here at every load. Design so the nominal input parks you on this point."
+        },
+        {
+          "label": "The shape",
+          "expression": "f<sub>m</sub>/f<sub>r</sub> = 1/√<span class=\"hl\">m</span>",
+          "note": "m sets the width of the boost region, and with it the trade between gain range and circulating loss."
+        }
+      ],
+      "points": [
+        { "text": "<b>Soft switching is the point.</b> Everything in the topology exists so the FET turns on at zero volts.", "tone": "ready" },
+        { "text": "<b>Two resonances, three regions.</b> Region 2 is home, region 3 is tolerable, region 1 destroys hardware.", "tone": "ready" },
+        { "text": "<b>Circulating current is the fee</b> you pay for ZVS, and m is where you set the price.", "tone": "ready" }
+      ],
+      "callout": "Next: put real numbers through the <b>LLC tank designer</b> and see what your own spec demands."
     }
-]}
+]
+}
