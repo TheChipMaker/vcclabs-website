@@ -14,11 +14,12 @@
   var openBtn = document.querySelector("[data-volt-index]");
   var closeBtn = document.querySelector("[data-volt-index-close]");
 
-  var W = 1280, H = 720, PAD = 56, i = 0;
+  var W = 1280, H = 720, PAD = 56, NAV = 96, i = 0;
 
   function fit() {
-    var s = Math.min((innerWidth - PAD) / W, (innerHeight - PAD * 2) / H);
-    frame.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+    var navSpace = document.fullscreenElement ? 0 : NAV;
+    var s = Math.min((innerWidth - PAD) / W, (innerHeight - PAD - navSpace) / H);
+    frame.style.transform = "translate(-50%,-50%) translateY(" + (-navSpace / 2 / s) + "px) scale(" + s + ")";
   }
 
   /* A slide's surface is dark either when the site theme is dark and the
@@ -79,6 +80,7 @@
     if (e.key === "Home") { e.preventDefault(); show(0, true); }
     if (e.key === "End") { e.preventDefault(); show(slides.length - 1, true); }
     if (e.key === "o" || e.key === "O") panel.classList.toggle("is-open");
+    if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFullscreen(); }
   });
 
   var x0 = null, y0 = null;
@@ -94,6 +96,43 @@
     if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) show(i + (dx < 0 ? 1 : -1), true);
     x0 = y0 = null;
   }, { passive: true });
+
+  var fsBtn = document.querySelector("[data-volt-fullscreen]");
+  var toast = document.querySelector("[data-volt-toast]");
+  var bar = document.querySelector("[data-volt-bar]");
+  var toastTimer = null, wakeTimer = null;
+
+  function showToast(html, ms) {
+    toast.innerHTML = html;
+    toast.classList.add("is-visible");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove("is-visible"); }, ms || 2600);
+  }
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else shell.requestFullscreen().catch(function () {
+      showToast("Full screen was blocked by the browser");
+    });
+  }
+
+  fsBtn.addEventListener("click", toggleFullscreen);
+
+  document.addEventListener("fullscreenchange", function () {
+    var on = !!document.fullscreenElement;
+    fsBtn.textContent = on ? "Exit full screen" : "Full screen";
+    if (on) showToast("Press <kbd>Esc</kbd> to exit full screen");
+    bar.classList.remove("is-woken");
+    fit();
+  });
+
+  /* in fullscreen the nav is hidden until the mouse moves */
+  document.addEventListener("mousemove", function () {
+    if (!document.fullscreenElement) return;
+    bar.classList.add("is-woken");
+    clearTimeout(wakeTimer);
+    wakeTimer = setTimeout(function () { bar.classList.remove("is-woken"); }, 2000);
+  });
 
   addEventListener("resize", fit);
   addEventListener("hashchange", function () { show(hashIndex(), false); });
