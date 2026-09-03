@@ -168,11 +168,13 @@ eleventyComputed:
 <div class="volt-toast" data-volt-toast aria-live="polite"></div>
 
 <div class="volt-index" data-volt-index-panel>
-  <div class="volt-index-head">
-    <h2>{{ volt.title }}</h2>
-    <button class="close" type="button" data-volt-index-close>Close</button>
+  <div class="volt-index-inner">
+    <div class="volt-index-head">
+      <h2>{{ volt.title }}</h2>
+      <button class="close" type="button" data-volt-index-close>Close</button>
+    </div>
+    <ol data-volt-index-list></ol>
   </div>
-  <ol data-volt-index-list></ol>
 </div>
 
 <script src="/assets/js/theme.js" defer></script>

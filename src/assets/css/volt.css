@@ -132,55 +132,73 @@
 }
 
 /* ---- slide index overlay ---- */
-
 .volt-index {
   position: fixed;
   inset: 0;
   z-index: 60;
   display: none;
-  flex-direction: column;
-  overflow: hidden;
-  background: rgba(8, 10, 12, 0.94);
-  backdrop-filter: blur(6px);
+  overflow-y: auto;
+  background: #0E1116;
 }
 
-.volt-index.is-open { display: flex; }
+.volt-index.is-open { display: block; }
+
+.volt-index-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 28px 56px;
+}
 
 .volt-index-head {
-  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 20px 28px;
+  padding: 20px 0;
+  margin-bottom: 8px;
+  background: #0E1116;
   border-bottom: 1px solid #242A32;
 }
 
 .volt-index h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   font: 600 15px var(--font-body);
   letter-spacing: 0.03em;
   color: #fff;
-  margin: 0;
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.volt-index .close {
+  flex: none;
+  min-height: 44px;
+  padding: 10px 20px;
+  background: #1b1f26;
+  border: 1px solid #242A32;
+  border-radius: 100px;
+  color: var(--chrome-text);
+  cursor: pointer;
+  font: 500 14px var(--font-body);
+}
+
+.volt-index .close:hover { color: #fff; border-color: var(--brand); }
+
 .volt-index ol {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   list-style: none;
-  max-width: 720px;
-  width: 100%;
   margin: 0;
-  padding: 16px 28px 40px;
+  padding: 0;
 }
 
 .volt-index li { border-top: 1px solid #242A32; }
+.volt-index li:first-child { border-top: none; }
 
-.volt-index button {
+.volt-index button:not(.close) {
   display: flex;
   gap: 18px;
   width: 100%;
@@ -193,7 +211,7 @@
   font: 400 15px var(--font-body);
 }
 
-.volt-index button:hover { color: #fff; background: #14181e; }
+.volt-index button:not(.close):hover { color: #fff; background: #14181e; }
 .volt-index button .n { font: 500 13px var(--font-mono); color: var(--brand); min-width: 34px; }
 .volt-index li.is-current button { color: #fff; }
 .volt-index li.is-current .n { color: var(--brand-bright); }
