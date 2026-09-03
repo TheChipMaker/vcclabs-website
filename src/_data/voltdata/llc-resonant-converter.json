@@ -121,6 +121,111 @@
         { "text": "<b>Between fm and fr</b> the converter can boost above 1. This is the useful region.", "tone": "ready" },
         { "text": "<b>Below fm</b> the tank turns capacitive, ZVS is lost, and the design fails.", "tone": "fault" }
       ]
+    },
+    {
+      "id": "fha",
+      "type": "parallel",
+      "ref": "V01-S05",
+      "eyebrow": "The approximation",
+      "title": "Pretend the square wave<br>is a <span class=\"hl\">sine wave</span>",
+      "titleSize": 40,
+      "lead": "The half-bridge produces a square wave, but the tank is a sharp filter centred near fr. It passes the fundamental and rejects almost everything else. So we analyse the fundamental alone and throw the harmonics away. This is the first harmonic approximation, and it is the reason LLC has closed-form design equations at all.",
+      "columns": [
+        {
+          "label": "What it buys you",
+          "tone": "gain",
+          "items": [
+            "The tank becomes an ordinary AC voltage divider",
+            "Phasor analysis applies — no time-domain simulation needed",
+            "One closed-form gain equation covers the whole design space",
+            "Accurate to a few percent near f<sub>r</sub>, which is where you operate"
+          ]
+        },
+        {
+          "label": "Where it breaks",
+          "tone": "cost",
+          "items": [
+            "Well below f<sub>r</sub> the harmonics matter and the error grows",
+            "At very light load the secondary conducts discontinuously",
+            "It cannot predict the exact peak gain — always leave margin",
+            "It says nothing about the ZVS condition; check that separately"
+          ]
+        }
+      ],
+      "callout": "Use FHA to <b>size</b> the tank, then verify in simulation. Designers who trust the peak gain number without margin are the ones who find out at the low-line corner in production."
+    },
+    {
+      "id": "equivalent-circuit",
+      "type": "split",
+      "ref": "V01-S06",
+      "eyebrow": "The model",
+      "title": "The whole converter collapses<br>into <span class=\"hl\">four components</span>",
+      "titleSize": 38,
+      "leftFlex": 1.4,
+      "rightFlex": 1,
+      "figure": "fha-equivalent",
+      "points": [
+        { "text": "<b>The source</b> becomes a sine at the switching frequency, amplitude 2V<sub>in</sub>/π." },
+        { "text": "<b>The rectifier and load</b> collapse into one AC resistance, R<sub>ac</sub> = 8n²R<sub>load</sub>/π². Heavy load means small R<sub>ac</sub>." },
+        { "text": "<b>Lm sits in parallel</b> with R<sub>ac</sub>. When the secondary conducts, R<sub>ac</sub> dominates and effectively shorts Lm out.", "tone": "ready" }
+      ],
+      "callout": "Everything from here on is this circuit. Read it as a <b>voltage divider</b>: the series Lr–Cr branch against the parallel Lm–R<sub>ac</sub> branch."
+    },
+    {
+      "id": "gain-sweep",
+      "type": "split",
+      "ref": "V01-S07",
+      "eyebrow": "Where gain comes from",
+      "title": "Sweep the frequency<br>and watch the divider work",
+      "titleSize": 38,
+      "leftFlex": 1.3,
+      "rightFlex": 0.9,
+      "widget": "llc-gain-curve",
+      "widgetTitle": "Interactive LLC gain curve",
+      "points": [
+        { "text": "<b>Above f<sub>r</sub></b> the series branch is inductive and dominates. It drops most of the voltage, so gain falls below 1." },
+        { "text": "<b>At f<sub>r</sub></b> Lr and Cr cancel exactly. The series branch vanishes, the full source appears across the load, and gain is 1." },
+        { "text": "<b>Below f<sub>r</sub></b> the series branch turns capacitive while Lm starts to matter, and the divider begins to boost." }
+      ],
+      "callout": "Drag <b>f<sub>n</sub></b> first and leave the other two alone. The unity crossing at f<sub>n</sub> = 1 does not move — that is the whole reason f<sub>r</sub> is the design anchor."
+    },
+    {
+      "id": "load-dependence",
+      "type": "split",
+      "ref": "V01-S08",
+      "eyebrow": "Load dependence",
+      "title": "Every load curve passes through<br>the <span class=\"hl\">same point</span>",
+      "titleSize": 38,
+      "leftFlex": 1.3,
+      "rightFlex": 0.9,
+      "widget": "llc-gain-curve",
+      "widgetTitle": "Interactive LLC gain curve — load sweep",
+      "points": [
+        { "text": "<b>Q is the load.</b> Q = √(L<sub>r</sub>/C<sub>r</sub>)/R<sub>ac</sub>. High Q is heavy load, low Q is light load." },
+        { "text": "<b>Heavy load flattens the curve.</b> Peak gain collapses, so the worst case for boost is always full load at low line.", "tone": "fault" },
+        { "text": "<b>Light load peaks hard</b> and the peak moves toward f<sub>m</sub>, which is why no-load regulation is awkward and needs burst mode." },
+        { "text": "<b>All curves meet at f<sub>n</sub> = 1</b> with gain 1, regardless of Q. Load-independent by construction.", "tone": "ready" }
+      ],
+      "callout": "Now drag <b>Q</b>. Watch the peak collapse as the load gets heavier while the unity point stays nailed down."
+    },
+    {
+      "id": "m-ratio",
+      "type": "split",
+      "ref": "V01-S09",
+      "eyebrow": "The shape variable",
+      "title": "m sets how much boost<br>you are allowed to have",
+      "titleSize": 38,
+      "leftFlex": 1.3,
+      "rightFlex": 0.9,
+      "widget": "llc-gain-curve",
+      "widgetTitle": "Interactive LLC gain curve — m sweep",
+      "points": [
+        { "text": "<b>m = (L<sub>r</sub>+L<sub>m</sub>)/L<sub>r</sub>.</b> It fixes the gap between the two resonances: f<sub>m</sub>/f<sub>r</sub> = 1/√m." },
+        { "text": "<b>Small m</b> means a large Lr relative to Lm. Wide gain range, but high circulating current and poor efficiency.", "tone": "fault" },
+        { "text": "<b>Large m</b> means a nearly conventional transformer. Efficient, but the curve flattens and there is barely any boost available." },
+        { "text": "<b>Typical designs land between 3 and 8</b>, chosen to just cover the required gain at the low-line, full-load corner.", "tone": "ready" }
+      ],
+      "callout": "This is the central trade of LLC design: <b>gain range against efficiency</b>. Every other choice follows from where you settle it."
     }
   ]
 }

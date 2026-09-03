@@ -503,3 +503,30 @@
 @media (prefers-reduced-motion: reduce) {
   .slide { transition: none; }
 }
+
+.figure-box .svg-wire,
+.figure-box .svg-sym,
+.figure-box .svg-part,
+.figure-box .svg-plate { stroke: var(--slate); }
+
+.figure-box .svg-part { fill: none; }
+.figure-box .svg-part-load { stroke: var(--brand-deep); fill: none; stroke-width: 2; }
+.figure-box .svg-node { fill: var(--slate); stroke: none; }
+
+.figure-box .svg-tick {
+  fill: var(--slate); stroke: none;
+  font-family: var(--font-mono); font-size: 12px;
+}
+
+.figure-box .svg-small {
+  fill: var(--slate-d); stroke: none;
+  font-family: var(--font-mono); font-size: 10px;
+}
+
+.slide.on-dark .figure-box .svg-wire,
+.slide.on-dark .figure-box .svg-sym,
+.slide.on-dark .figure-box .svg-part,
+.slide.on-dark .figure-box .svg-plate { stroke: var(--muted-2); }
+.slide.on-dark .figure-box .svg-node { fill: var(--muted-2); }
+.slide.on-dark .figure-box .svg-tick { fill: var(--muted-2); }
+.slide.on-dark .figure-box .svg-part-load { stroke: var(--brand-bright); }

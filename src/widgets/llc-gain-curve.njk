@@ -1,0 +1,185 @@
+---
+permalink: "/widgets/llc-gain-curve/"
+layout: null
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLC gain curve</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --brand:#15B86A; --brand-b:#2BD27D; --brand-d:#0C7A48;
+  --signal:#2C66EA; --fault:#EF4444; --warn:#F5C542;
+  --txt:#E7E9ED; --mut:#8A94A1; --mut2:#B7BEC9;
+  --panel:#161A20; --panel2:#1F242C; --line:#2a3038;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:transparent;color:var(--txt);font-family:var(--body);
+  display:flex;flex-direction:column;gap:9px;padding:10px;user-select:none;overflow:hidden}
+
+.mid{flex:1;min-height:0;display:flex;gap:10px}
+.plot{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:8px 10px;display:flex;flex-direction:column;min-width:0}
+.plot .cap{font:600 9px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.plot svg{flex:1;width:100%}
+.grid-l{stroke:#22282f;stroke-width:1}
+.zone-cap{fill:#ef4444;opacity:.08}
+.zone-boost{fill:#15b86a;opacity:.07}
+.curve{stroke:#4a5563;stroke-width:1.4;fill:none}
+.curve.sel{stroke:var(--brand-b);stroke-width:2.4}
+.unity{stroke:var(--mut);stroke-width:1;stroke-dasharray:3 3}
+.fr-line{stroke:var(--signal);stroke-width:1.3;stroke-dasharray:5 4}
+.fm-line{stroke:var(--fault);stroke-width:1.3;stroke-dasharray:5 4}
+.marker{fill:var(--brand-b)}
+.ax{font:500 8px var(--mono);fill:var(--mut)}
+.tag{font:600 9px var(--mono)}
+
+.read{flex:none;width:132px;display:flex;flex-direction:column;gap:7px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.stat .k{font:600 8.5px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.stat .v{font:600 19px/1 var(--mono);margin-top:5px;color:var(--txt)}
+.stat .v small{font-size:11px;color:var(--mut2)}
+.verdict{border-radius:9px;padding:9px 10px;font:600 11.5px var(--body);text-align:center;margin-top:auto}
+
+.ctl{flex:none;display:flex;gap:10px}
+.sld{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+.sld .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.sld .nm{font:600 9.5px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--mut2)}
+.sld .rd{font:600 13px var(--mono);color:var(--brand-b)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#2a3038;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+</style>
+</head>
+<body>
+
+<div class="mid">
+  <div class="plot">
+    <div class="cap">Voltage gain M vs normalised frequency f<sub>n</sub> = f<sub>sw</sub> / f<sub>r</sub></div>
+    <svg id="plot" viewBox="0 0 460 210" preserveAspectRatio="none"></svg>
+  </div>
+  <div class="read">
+    <div class="stat"><div class="k">Gain M</div><div class="v" id="gain">—</div></div>
+    <div class="stat"><div class="k">f<sub>m</sub> / f<sub>r</sub></div><div class="v" id="fmr">—</div></div>
+    <div class="stat"><div class="k">Peak gain</div><div class="v" id="pk">—</div></div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+</div>
+
+<div class="ctl">
+  <div class="sld">
+    <div class="top"><span class="nm">Frequency f<sub>n</sub></span><span class="rd" id="fnrd">1.00</span></div>
+    <input type="range" id="fn" min="0.3" max="2" step="0.005" value="1">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">Quality factor Q (load)</span><span class="rd" id="qrd">0.40</span></div>
+    <input type="range" id="q" min="0.05" max="1.2" step="0.01" value="0.4">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">Ratio m = (L<sub>r</sub>+L<sub>m</sub>)/L<sub>r</sub></span><span class="rd" id="mrd">6.0</span></div>
+    <input type="range" id="m" min="2.5" max="12" step="0.1" value="6">
+  </div>
+</div>
+
+<script>
+/* First harmonic approximation gain of the LLC tank.
+   fn = fsw/fr, m = (Lr+Lm)/Lr, Q = sqrt(Lr/Cr)/Rac.
+   M(fn) = fn^2 (m-1) / sqrt( (m fn^2 - 1)^2 + fn^2 (fn^2-1)^2 (m-1)^2 Q^2 )  */
+function gain(fn, m, Q) {
+  var a = fn * fn * (m - 1);
+  var b = m * fn * fn - 1;
+  var c = fn * (fn * fn - 1) * (m - 1) * Q;
+  return a / Math.sqrt(b * b + c * c);
+}
+
+var W = 460, H = 210, PADL = 30, PADR = 10, PADT = 10, PADB = 22;
+var FN0 = 0.3, FN1 = 2.0, M0 = 0, M1 = 2.4;
+
+var $ = function (id) { return document.getElementById(id); };
+var plot = $("plot");
+var X = function (fn) { return PADL + (fn - FN0) / (FN1 - FN0) * (W - PADL - PADR); };
+var Y = function (M) { return PADT + (1 - (M - M0) / (M1 - M0)) * (H - PADT - PADB); };
+
+function path(m, Q) {
+  var p = [];
+  for (var fn = FN0; fn <= FN1 + 1e-9; fn += 0.005) {
+    var g = gain(fn, m, Q);
+    if (!isFinite(g)) continue;
+    p.push(X(fn).toFixed(1) + "," + Y(Math.min(g, M1 + 0.5)).toFixed(1));
+  }
+  return p.join(" ");
+}
+
+function render() {
+  var fn = parseFloat($("fn").value);
+  var Q = parseFloat($("q").value);
+  var m = parseFloat($("m").value);
+
+  var fmr = 1 / Math.sqrt(m);
+  var M = gain(fn, m, Q);
+
+  var pk = 0;
+  for (var f = FN0; f <= FN1; f += 0.002) pk = Math.max(pk, gain(f, m, Q));
+
+  $("fnrd").textContent = fn.toFixed(2);
+  $("qrd").textContent = Q.toFixed(2);
+  $("mrd").textContent = m.toFixed(1);
+  $("gain").textContent = M.toFixed(2);
+  $("fmr").textContent = fmr.toFixed(2);
+  $("pk").textContent = pk.toFixed(2);
+
+  var v = $("verdict");
+  if (fn < fmr) {
+    v.textContent = "Capacitive — ZVS lost";
+    v.style.background = "rgba(239,68,68,.16)"; v.style.color = "#EF4444";
+  } else if (fn < 1) {
+    v.textContent = "Boost region — ZVS";
+    v.style.background = "rgba(43,210,125,.16)"; v.style.color = "#2BD27D";
+  } else {
+    v.textContent = "Buck region — ZVS";
+    v.style.background = "rgba(44,102,234,.16)"; v.style.color = "#7ea2f5";
+  }
+
+  var s = "";
+  s += '<rect class="zone-cap" x="' + X(FN0) + '" y="' + PADT + '" width="' + (X(fmr) - X(FN0)) + '" height="' + (Y(M0) - PADT) + '"/>';
+  s += '<rect class="zone-boost" x="' + X(fmr) + '" y="' + PADT + '" width="' + (X(1) - X(fmr)) + '" height="' + (Y(M0) - PADT) + '"/>';
+
+  for (var g = 0; g <= M1; g += 0.4) {
+    s += '<line class="grid-l" x1="' + PADL + '" y1="' + Y(g) + '" x2="' + (W - PADR) + '" y2="' + Y(g) + '"/>';
+    s += '<text class="ax" x="' + (PADL - 4) + '" y="' + (Y(g) + 3) + '" text-anchor="end">' + g.toFixed(1) + '</text>';
+  }
+  for (var t = 0.5; t <= FN1; t += 0.5) {
+    s += '<text class="ax" x="' + X(t) + '" y="' + (H - 8) + '" text-anchor="middle">' + t.toFixed(1) + '</text>';
+  }
+
+  /* ghost family at other loads, then the selected curve */
+  [0.1, 0.25, 0.5, 0.8, 1.1].forEach(function (qq) {
+    s += '<polyline class="curve" points="' + path(m, qq) + '"/>';
+  });
+  s += '<polyline class="curve sel" points="' + path(m, Q) + '"/>';
+
+  s += '<line class="unity" x1="' + PADL + '" y1="' + Y(1) + '" x2="' + (W - PADR) + '" y2="' + Y(1) + '"/>';
+  s += '<line class="fr-line" x1="' + X(1) + '" y1="' + PADT + '" x2="' + X(1) + '" y2="' + Y(M0) + '"/>';
+  s += '<text class="tag" x="' + (X(1) + 4) + '" y="' + (PADT + 9) + '" fill="#7ea2f5">fr</text>';
+  s += '<line class="fm-line" x1="' + X(fmr) + '" y1="' + PADT + '" x2="' + X(fmr) + '" y2="' + Y(M0) + '"/>';
+  s += '<text class="tag" x="' + (X(fmr) - 4) + '" y="' + (PADT + 9) + '" text-anchor="end" fill="#EF4444">fm</text>';
+
+  s += '<circle class="marker" cx="' + X(fn) + '" cy="' + Y(Math.min(M, M1 + 0.5)) + '" r="4.5"/>';
+
+  plot.innerHTML = s;
+}
+
+["fn", "q", "m"].forEach(function (id) { $(id).addEventListener("input", render); });
+render();
+</script>
+</body>
+</html>
