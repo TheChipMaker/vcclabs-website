@@ -1,0 +1,143 @@
+:root {
+  --ink: #14161a;
+  --muted: #5c6470;
+  --line: #d6dae0;
+  --bg: #ffffff;
+  --accent: #0b6b4f;
+  --measure: 68ch;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+a { color: var(--accent); }
+
+.site-header,
+main,
+.site-footer {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.site-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.wordmark {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-header nav a {
+  margin-left: 20px;
+  font-size: 15px;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.site-header nav a:hover { color: var(--ink); }
+
+.hero { padding: 64px 0 48px; max-width: var(--measure); }
+
+.hero h1 {
+  margin: 0 0 16px;
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.hero p { margin: 0; font-size: 19px; color: var(--muted); }
+
+.volt-list { padding-bottom: 64px; }
+
+.volt-list h2 {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.volt-card {
+  display: block;
+  padding: 20px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+  min-height: 44px;
+}
+
+a.volt-card:hover { border-color: var(--ink); }
+
+.volt-card.is-draft { opacity: 0.55; }
+
+.volt-subject,
+.volt-duration {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.volt-title {
+  display: block;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 6px 0;
+}
+
+.volt-blurb {
+  display: block;
+  color: var(--muted);
+  margin-bottom: 12px;
+  max-width: var(--measure);
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 24px;
+  padding-bottom: 40px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.small-screen-notice { display: none; }
+
+@media (max-width: 767px) {
+  main, .site-header nav, .site-footer { display: none; }
+  .small-screen-notice {
+    display: block;
+    padding: 40px 24px;
+    font-size: 17px;
+    color: var(--muted);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

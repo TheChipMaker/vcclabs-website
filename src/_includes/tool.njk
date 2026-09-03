@@ -1,0 +1,7 @@
+---
+layout: base.njk
+---
+<section class="tool">
+{{ content | safe }}
+</section>
+{% if volt %}<p><a href="/volts/{{ volt }}/">Open the volt →</a></p>{% endif %}

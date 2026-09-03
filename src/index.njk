@@ -1,0 +1,30 @@
+---
+layout: base.njk
+title: Home
+description: The subjects every electrical engineering student has to take, in under ten minutes each.
+---
+<section class="hero">
+  <h1>Confused to competent, in under ten minutes.</h1>
+  <p>VccLabs teaches the subjects every electrical engineering student on the planet has to take. Power electronics, Fourier transforms, calculus. All interactive, no fluff.</p>
+</section>
+
+<section class="volt-list">
+  <h2>Volts</h2>
+  {% for volt in volts %}
+    {% if volt.status == "published" %}
+    <a class="volt-card" href="/volts/{{ volt.slug }}/">
+      <span class="volt-subject">{{ volt.subject }}</span>
+      <span class="volt-title">{{ volt.title }}</span>
+      <span class="volt-blurb">{{ volt.blurb }}</span>
+      <span class="volt-duration">{{ volt.minutes }} minute volt</span>
+    </a>
+    {% else %}
+    <div class="volt-card is-draft">
+      <span class="volt-subject">{{ volt.subject }}</span>
+      <span class="volt-title">{{ volt.title }}</span>
+      <span class="volt-blurb">{{ volt.blurb }}</span>
+      <span class="volt-duration">In production</span>
+    </div>
+    {% endif %}
+  {% endfor %}
+</section>

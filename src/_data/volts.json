@@ -1,0 +1,10 @@
+[
+  {
+    "title": "Buck Converter Fundamentals",
+    "slug": "buck-converter-fundamentals",
+    "subject": "Power Electronics",
+    "minutes": 9,
+    "blurb": "Why the inductor current ramps, where the duty cycle comes from, and how to size the output cap.",
+    "status": "draft"
+  }
+]

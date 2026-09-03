@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} — {{ site.title }}</title>
+<meta name="description" content="{{ description or site.description }}">
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="wordmark" href="/">{{ site.title }}</a>
+  <nav><a href="/volts/">Volts</a> <a href="/tools/">Calculators</a></nav>
+</header>
+<main>{{ content | safe }}</main>
+<footer class="site-footer">
+  <span>© {{ site.title }}</span>
+  <a href="{{ site.supportUrl }}">Support VccLabs</a>
+</footer>
+<p class="small-screen-notice">VccLabs is best viewed on a tablet or larger screen.</p>
+</body>
+</html>
