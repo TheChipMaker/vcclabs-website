@@ -11,109 +11,116 @@
   ],
   "slides": [
     {
+      "id": "cover",
+      "type": "cover",
+      "surface": "default",
+      "series": "Power Electronics · Volt 01",
+      "title": "The LLC Resonant<br>Converter",
+      "lead": "Why the topology exists, what the tank is really doing, and how to read the gain curve without guessing."
+    },
+    {
       "id": "the-squeeze",
       "type": "parallel",
+      "ref": "V01-S01",
       "eyebrow": "The problem",
-      "title": "You cannot shrink the magnetics without cooking the FETs",
-      "lead": "Every power supply designer is handed the same instruction: make it smaller. Smaller means higher switching frequency, because transformer and inductor volume falls as frequency rises. That part works. The part that does not work is what happens to the switches.",
+      "title": "You cannot shrink the magnetics<br>without <span class=\"hl\">cooking the FETs</span>",
+      "titleSize": 40,
+      "lead": "Every designer gets the same instruction: make it smaller. Smaller means higher switching frequency, because magnetic volume falls as frequency rises. That part works. What happens to the switches does not.",
       "columns": [
         {
-          "label": "Raise frequency",
-          "tone": "good",
+          "label": "Raise the frequency",
+          "tone": "gain",
           "items": [
             "Transformer core volume drops",
             "Output filter shrinks",
             "Faster transient response",
-            "Higher power density, lower BOM volume"
+            "Higher power density, smaller enclosure"
           ]
         },
         {
           "label": "And you pay for it",
-          "tone": "bad",
+          "tone": "cost",
           "items": [
             "Switching loss scales directly with frequency",
-            "Every turn-on dissipates the energy stored in Coss",
-            "Overlap of V and I during transition heats the die",
+            "Every turn-on dumps the energy stored in C<sub>oss</sub>",
+            "V and I overlap during the transition, heating the die",
             "EMI gets worse at exactly the frequencies that matter"
           ]
         }
       ],
-      "note": "In a hard-switched converter, switching loss is roughly proportional to frequency. Double the frequency, double the loss. That is the wall. Resonant conversion is the attempt to walk through it."
+      "callout": "In a hard-switched converter, switching loss is roughly <b>proportional to frequency</b>. Double the frequency, double the loss. That is the wall — and resonant conversion is the attempt to walk through it."
     },
     {
       "id": "zvs",
-      "type": "figure",
+      "type": "split",
+      "ref": "V01-S02",
       "eyebrow": "The idea",
-      "title": "Turn the switch on when its voltage is already zero",
-      "lead": "Switching loss comes from voltage and current being large at the same instant. If the drain-source voltage has already fallen to zero before the gate rises, the overlap disappears and so does the loss. This is zero voltage switching, and it is the entire reason the LLC topology is shaped the way it is.",
-      "figure": "zvs-overlap",
-      "caption": "Hard switching, top: the gate rises while Vds is still at the rail, and the shaded overlap is energy turned into heat on every cycle. Soft switching, bottom: circulating current in the tank discharges Coss first, so Vds reaches zero before the gate moves. No overlap, no loss.",
+      "title": "Turn the switch on when its voltage<br>is <span class=\"hl\">already zero</span>",
+      "titleSize": 38,
+      "leftFlex": 1.25,
+      "rightFlex": 0.95,
+      "widget": "zvs-explorer",
+      "widgetTitle": "Interactive ZVS explorer",
       "points": [
-        "The tank current must be inductive so it lags the voltage and can discharge the output capacitance",
-        "That discharge has to finish inside the dead time between the two switches",
-        "Get this wrong and you do not merely lose efficiency, you lose the FET"
-      ]
+        {
+          "text": "<b>Loss comes from overlap.</b> If V<sub>ds</sub> has already fallen to zero before the gate rises, there is no overlap and no turn-on loss."
+        },
+        {
+          "text": "<b>The tank must be inductive.</b> Current has to lag the voltage so it keeps flowing after turn-off and discharges C<sub>oss</sub>."
+        },
+        {
+          "text": "<b>The dead time has to be long enough.</b> Drop the current or shorten the dead time and the discharge never finishes.",
+          "tone": "fault"
+        }
+      ],
+      "callout": "Drag the sliders. Whatever voltage is left on C<sub>oss</sub> at turn-on gets dissipated inside the die — this is how FETs die in a badly tuned resonant converter."
     },
     {
       "id": "topology",
-      "type": "schematic",
+      "type": "split",
+      "ref": "V01-S03",
       "eyebrow": "The circuit",
-      "title": "Half-bridge, three reactive elements, transformer, rectifier",
-      "lead": "There is no mystery in the schematic. A half-bridge chops the DC input into a square wave, a three-element tank filters it, a transformer scales and isolates it, and a rectifier turns it back into DC. Everything interesting happens in the tank.",
+      "title": "Half-bridge, three reactive elements,<br>transformer, rectifier",
+      "titleSize": 38,
+      "leftFlex": 1.35,
+      "rightFlex": 1,
       "figure": "llc-topology",
       "legend": [
-        {
-          "part": "Q1, Q2",
-          "role": "Half-bridge. Driven at 50% duty with dead time between them, producing a square wave at the switching node. Duty cycle is fixed — regulation comes from frequency, not from duty."
-        },
-        {
-          "part": "Cr",
-          "role": "Resonant capacitor. Series element, also blocks DC so the transformer never sees a DC bias."
-        },
-        {
-          "part": "Lr",
-          "role": "Resonant inductor. Often just the transformer leakage inductance, which is why LLC designs are so sensitive to transformer construction."
-        },
-        {
-          "part": "Lm",
-          "role": "Magnetizing inductance. Deliberately made small enough to participate in resonance — in a conventional converter you want this large and ignore it. Here it is a design variable."
-        },
-        {
-          "part": "T1",
-          "role": "Transformer. Provides isolation and the turns ratio n that sets the nominal operating point."
-        },
-        {
-          "part": "D1, D2, Co",
-          "role": "Rectifier and output capacitor. The rectifier reflects the load back into the tank as an equivalent AC resistance."
-        }
+        { "part": "Q1, Q2", "role": "Half-bridge at fixed 50% duty with dead time. Regulation comes from frequency, never duty." },
+        { "part": "Cr", "role": "Resonant capacitor. Also blocks DC, so the transformer never sees a DC bias." },
+        { "part": "Lr", "role": "Resonant inductor. Often just transformer leakage — which is why construction matters so much." },
+        { "part": "Lm", "role": "Magnetizing inductance, deliberately made small enough to take part in resonance." },
+        { "part": "T1", "role": "Isolation and the turns ratio n that sets the nominal operating point." },
+        { "part": "D1, D2", "role": "Rectifier. Reflects the load back into the tank as an equivalent AC resistance." }
       ],
-      "note": "Three reactive elements, two inductors and one capacitor, is where the name comes from: L, L, C."
+      "callout": "Three reactive elements — two inductors and one capacitor — is where the name comes from: <b>L, L, C</b>."
     },
     {
       "id": "two-frequencies",
-      "type": "statement",
+      "type": "equations",
+      "ref": "V01-S04",
+      "surface": "invert",
       "eyebrow": "The key idea",
-      "title": "There are two resonant frequencies, and everything depends on which one you are near",
-      "lead": "Most explanations of LLC quote a single resonant frequency and then cannot explain why the gain curve has the shape it does. The circuit has two, and the whole operating map lives between them.",
+      "title": "There are <span class=\"hl\">two</span> resonant frequencies",
+      "titleSize": 42,
+      "lead": "Most explanations quote a single resonant frequency and then cannot explain the shape of the gain curve. The circuit has two, and the entire operating map lives between them.",
       "formulas": [
         {
           "label": "Series resonance",
-          "expression": "f_r = 1 / (2π √(L_r C_r))",
-          "note": "Lm is shorted out by the reflected load, so only Lr and Cr resonate. At this frequency the tank is purely resistive and the gain is 1 regardless of load. This is the design anchor."
+          "expression": "f<span class=\"hl\">r</span> = 1 / 2π√(L<sub>r</sub>C<sub>r</sub>)",
+          "note": "Lm is shorted by the reflected load, so only Lr and Cr resonate. Here the tank is purely resistive and gain is 1 at any load. This is the design anchor."
         },
         {
           "label": "Magnetizing resonance",
-          "expression": "f_m = 1 / (2π √((L_r + L_m) C_r))",
-          "note": "When the secondary stops conducting, Lm is no longer clamped and joins the resonance. Because Lm is much larger than Lr, this frequency is well below fr."
+          "expression": "f<span class=\"hl\">m</span> = 1 / 2π√((L<sub>r</sub>+L<sub>m</sub>)C<sub>r</sub>)",
+          "note": "When the secondary stops conducting, Lm is unclamped and joins the resonance. Because Lm is much larger than Lr, this sits well below fr."
         }
       ],
       "points": [
-        "fm is always lower than fr, and the ratio between them is set by m = Lm / Lr",
-        "Above fr the converter behaves like a series resonant circuit and gain is always below 1",
-        "Between fm and fr the converter can boost above 1 — this is the useful region",
-        "Below fm the tank turns capacitive, ZVS is lost, and the design fails"
-      ],
-      "note": "Hold on to this slide. Every gain curve, operating region and design rule in the rest of this volt is a consequence of these two frequencies and the gap between them."
+        { "text": "<b>Above fr</b> the converter behaves like a series resonant circuit — gain is always below 1." },
+        { "text": "<b>Between fm and fr</b> the converter can boost above 1. This is the useful region.", "tone": "ready" },
+        { "text": "<b>Below fm</b> the tank turns capacitive, ZVS is lost, and the design fails.", "tone": "fault" }
+      ]
     }
   ]
 }

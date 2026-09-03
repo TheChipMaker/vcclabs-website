@@ -1,0 +1,168 @@
+---
+permalink: "/widgets/zvs-explorer/"
+layout: null
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZVS explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --brand:#F5872E; --brand-b:#FF9D4D;
+  --ready:#2BD27D; --signal:#2C66EA; --fault:#EF4444; --warn:#F5C542;
+  --txt:#E7E9ED; --mut:#8A94A1; --mut2:#B7BEC9;
+  --panel:#161A20; --panel2:#1F242C; --line:#2a3038;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:transparent;color:var(--txt);font-family:var(--body);
+  display:flex;flex-direction:column;gap:9px;padding:10px;user-select:none;overflow:hidden}
+
+.mid{flex:1;min-height:0;display:flex;gap:10px}
+.scope{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:8px 10px;display:flex;flex-direction:column;min-width:0}
+.scope .cap{font:600 9px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.scope svg{flex:1;width:100%}
+.grid-l{stroke:#22282f;stroke-width:1}
+.vds{stroke:var(--brand-b);stroke-width:2.2;fill:none}
+.gate{stroke:var(--signal);stroke-width:1.8;fill:none}
+.dead{fill:#2c66ea;opacity:.10}
+.loss{fill:var(--fault);opacity:.34}
+.ax{font:500 8px var(--mono);fill:var(--mut)}
+.tag{font:600 9px var(--mono)}
+
+.read{flex:none;width:140px;display:flex;flex-direction:column;gap:7px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.stat .k{font:600 8.5px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.stat .v{font:600 19px/1 var(--mono);margin-top:5px;color:var(--txt)}
+.stat .v small{font-size:11px;color:var(--mut2)}
+.verdict{border-radius:9px;padding:9px 10px;font:600 12px var(--body);text-align:center;margin-top:auto}
+
+.ctl{flex:none;display:flex;gap:10px}
+.sld{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+.sld .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.sld .nm{font:600 9.5px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--mut2)}
+.sld .rd{font:600 13px var(--mono);color:var(--brand-b)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#2a3038;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+</style>
+</head>
+<body>
+
+<div class="mid">
+  <div class="scope">
+    <div class="cap">Switching node — Vds and gate drive (illustrative)</div>
+    <svg id="scope" viewBox="0 0 420 190" preserveAspectRatio="none"></svg>
+  </div>
+  <div class="read">
+    <div class="stat"><div class="k">Discharge time</div><div class="v" id="tdis">—</div></div>
+    <div class="stat"><div class="k">Vds at turn-on</div><div class="v" id="vsw">—</div></div>
+    <div class="stat"><div class="k">Turn-on loss</div><div class="v" id="ploss">—</div></div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+</div>
+
+<div class="ctl">
+  <div class="sld">
+    <div class="top"><span class="nm">Tank current at turn-off</span><span class="rd" id="ird">1.0 A</span></div>
+    <input type="range" id="ic" min="0.1" max="4" step="0.05" value="1.0">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">Dead time</span><span class="rd" id="dtrd">200 ns</span></div>
+    <input type="range" id="dt" min="20" max="500" step="5" value="200">
+  </div>
+</div>
+
+<script>
+/* Illustrative model: constant-current discharge of Coss from Vin to 0.
+   t_discharge = Coss * Vin / I. Loss estimated as the CV^2 f term on the
+   residual voltage that never got discharged. */
+var VIN = 400, COSS = 440e-12, FSW = 100e3;
+var W = 420, H = 190, PADL = 30, PADR = 8, PADT = 12, PADB = 26;
+
+var $ = function (id) { return document.getElementById(id); };
+var scope = $("scope");
+var yV = function (v) { return PADT + (1 - v / VIN) * (H - PADT - PADB - 34); };
+
+function render() {
+  var I = parseFloat($("ic").value);
+  var dt = parseFloat($("dt").value) * 1e-9;
+
+  var tFull = COSS * VIN / I;
+  var vsw = tFull <= dt ? 0 : VIN * (1 - dt / tFull);
+  var loss = 0.5 * COSS * vsw * vsw * FSW;
+
+  $("ird").textContent = I.toFixed(2) + " A";
+  $("dtrd").textContent = (dt * 1e9).toFixed(0) + " ns";
+  $("tdis").innerHTML = (tFull * 1e9).toFixed(0) + " <small>ns</small>";
+  $("vsw").innerHTML = vsw.toFixed(0) + " <small>V</small>";
+  $("ploss").innerHTML = (loss * 1000).toFixed(0) + " <small>mW</small>";
+
+  var v = $("verdict");
+  if (vsw === 0) {
+    v.textContent = "ZVS achieved";
+    v.style.background = "rgba(43,210,125,.16)";
+    v.style.color = "#2BD27D";
+  } else if (vsw < VIN * 0.35) {
+    v.textContent = "Partial ZVS";
+    v.style.background = "rgba(245,197,66,.16)";
+    v.style.color = "#F5C542";
+  } else {
+    v.textContent = "ZVS lost — hard switching";
+    v.style.background = "rgba(239,68,68,.16)";
+    v.style.color = "#EF4444";
+  }
+
+  /* time axis: 0 .. 600ns window */
+  var TMAX = 600e-9;
+  var x = function (t) { return PADL + (t / TMAX) * (W - PADL - PADR); };
+
+  var s = "";
+  for (var k = 0; k <= 4; k++) {
+    var vv = VIN * k / 4;
+    s += '<line class="grid-l" x1="' + PADL + '" y1="' + yV(vv) + '" x2="' + (W - PADR) + '" y2="' + yV(vv) + '"/>';
+    s += '<text class="ax" x="' + (PADL - 4) + '" y="' + (yV(vv) + 3) + '" text-anchor="end">' + vv.toFixed(0) + 'V</text>';
+  }
+
+  /* dead-time band starts at t=0 */
+  s += '<rect class="dead" x="' + x(0) + '" y="' + PADT + '" width="' + (x(dt) - x(0)) + '" height="' + (yV(0) - PADT) + '"/>';
+  s += '<text class="tag" x="' + (x(dt) + 4) + '" y="' + (PADT + 9) + '" fill="#7ea2f5">dead time ' + (dt * 1e9).toFixed(0) + 'ns</text>';
+
+  /* Vds: flat at VIN before 0, linear ramp down, then flat at vsw, then snaps to 0 at turn-on */
+  var tEnd = Math.min(tFull, dt);
+  var pts = [x(-0) + ',' + yV(VIN)];
+  pts.push(x(tEnd) + ',' + yV(VIN - (VIN / tFull) * tEnd));
+  pts.push(x(dt) + ',' + yV(vsw));
+  s += '<polyline class="vds" points="' + pts.join(" ") + '"/>';
+  s += '<line class="vds" x1="' + x(dt) + '" y1="' + yV(vsw) + '" x2="' + x(dt) + '" y2="' + yV(0) + '"/>';
+  s += '<line class="vds" x1="' + x(dt) + '" y1="' + yV(0) + '" x2="' + (W - PADR) + '" y2="' + yV(0) + '"/>';
+
+  /* residual loss triangle at turn-on */
+  if (vsw > 0) {
+    s += '<polygon class="loss" points="' + x(dt) + ',' + yV(vsw) + ' ' + x(dt) + ',' + yV(0) + ' ' + x(dt + 60e-9) + ',' + yV(0) + '"/>';
+    s += '<text class="tag" x="' + (x(dt) + 8) + '" y="' + (yV(vsw) - 4) + '" fill="#EF4444">' + vsw.toFixed(0) + 'V dumped into the die</text>';
+  }
+
+  /* gate trace along the bottom */
+  var gy0 = H - PADB + 6, gy1 = H - PADB - 16;
+  s += '<polyline class="gate" points="' + x(0) + ',' + gy0 + ' ' + x(dt) + ',' + gy0 + ' ' + x(dt) + ',' + gy1 + ' ' + (W - PADR) + ',' + gy1 + '"/>';
+  s += '<text class="ax" x="' + PADL + '" y="' + (H - 4) + '">gate</text>';
+
+  scope.innerHTML = s;
+}
+
+$("ic").addEventListener("input", render);
+$("dt").addEventListener("input", render);
+render();
+</script>
+</body>
+</html>
