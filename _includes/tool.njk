@@ -1,0 +1,7 @@
+---
+layout: base.njk
+---
+<section class="tool">
+{{ content | safe }}
+</section>
+{% if deck %}<p><a href="/decks/{{ deck }}/">Read the deck →</a></p>{% endif %}

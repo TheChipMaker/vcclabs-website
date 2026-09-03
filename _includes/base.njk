@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} — {{ site.title }}</title>
+<meta name="description" content="{{ description or site.description }}">
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+<header><a href="/">{{ site.title }}</a></header>
+<main>{{ content | safe }}</main>
+<footer>© {{ site.title }}</footer>
+</body>
+</html>
