@@ -75,12 +75,10 @@
       mini.classList.add("is-active");
       mini.style.transform = "scale(" + scale + ")";
 
-      /* don't spawn a second copy of every widget iframe */
       mini.querySelectorAll("iframe").forEach(function (f) {
-        var ph = document.createElement("div");
-        ph.className = "thumb-widget";
-        ph.textContent = "interactive";
-        f.parentNode.replaceChild(ph, f);
+        f.setAttribute("loading", "lazy");
+        f.setAttribute("tabindex", "-1");
+        f.removeAttribute("title");
       });
       mini.querySelectorAll("[data-theme-toggle]").forEach(function (t) {
         t.removeAttribute("data-theme-toggle");
