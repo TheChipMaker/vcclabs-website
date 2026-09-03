@@ -1,0 +1,214 @@
+---
+permalink: "/widgets/llc-waveforms/"
+layout: null
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLC waveform explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --brand:#15B86A; --brand-b:#2BD27D;
+  --signal:#2C66EA; --fault:#EF4444; --warn:#F5C542;
+  --txt:#E7E9ED; --mut:#8A94A1; --mut2:#B7BEC9;
+  --panel:#161A20; --line:#2a3038;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:transparent;color:var(--txt);font-family:var(--body);
+  display:flex;flex-direction:column;gap:8px;padding:10px;user-select:none;overflow:hidden}
+
+.mid{flex:1;min-height:0;display:flex;gap:9px}
+.scope{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:7px 9px;display:flex;flex-direction:column;min-width:0}
+.scope svg{flex:1;width:100%}
+.grid-l{stroke:#22282f;stroke-width:1}
+.zero{stroke:#39424d;stroke-width:1}
+.ilr{stroke:var(--brand-b);stroke-width:2.2;fill:none}
+.ilm{stroke:var(--warn);stroke-width:1.8;stroke-dasharray:4 3;fill:none}
+.isec{fill:#2C66EA;opacity:.20}
+.isec-e{stroke:var(--signal);stroke-width:1.6;fill:none}
+.vsq{stroke:var(--mut2);stroke-width:1.8;fill:none}
+.cursor{stroke:#fff;stroke-width:1;opacity:.5}
+.deadband{fill:#2C66EA;opacity:.10}
+.ax{font:500 8px var(--mono);fill:var(--mut)}
+.key{font:600 9px var(--mono)}
+
+.read{flex:none;width:128px;display:flex;flex-direction:column;gap:6px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+.stat .k{font:600 8.5px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+.stat .v{font:600 18px/1 var(--mono);margin-top:4px;color:var(--txt)}
+.stat .v small{font-size:10.5px;color:var(--mut2)}
+.verdict{border-radius:9px;padding:8px 9px;font:600 11px var(--body);text-align:center;margin-top:auto}
+
+.ctl{flex:none;display:flex;gap:9px;align-items:center}
+.sld{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+.sld .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.sld .nm{font:600 9.5px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--mut2)}
+.sld .rd{font:600 13px var(--mono);color:var(--brand-b)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#2a3038;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+.play{flex:none;background:var(--brand);color:#04140b;border:none;border-radius:9px;
+  padding:11px 15px;font:600 11px var(--body);cursor:pointer;min-width:70px}
+</style>
+</head>
+<body>
+
+<div class="mid">
+  <div class="scope">
+    <svg id="scope" viewBox="0 0 480 220" preserveAspectRatio="none"></svg>
+  </div>
+  <div class="read">
+    <div class="stat"><div class="k">Region</div><div class="v" id="region" style="font-size:15px">—</div></div>
+    <div class="stat"><div class="k">Peak i<sub>Lr</sub></div><div class="v" id="ipk">—</div></div>
+    <div class="stat"><div class="k">Circulating</div><div class="v" id="circ">—</div></div>
+    <div class="verdict" id="verdict">—</div>
+  </div>
+</div>
+
+<div class="ctl">
+  <button class="play" id="play" type="button">Run</button>
+  <div class="sld">
+    <div class="top"><span class="nm">Frequency f<sub>n</sub></span><span class="rd" id="fnrd">1.00</span></div>
+    <input type="range" id="fn" min="0.35" max="1.8" step="0.005" value="1">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">Load</span><span class="rd" id="ldrd">70 %</span></div>
+    <input type="range" id="ld" min="10" max="100" step="1" value="70">
+  </div>
+</div>
+
+<script>
+/* Illustrative time-domain model. Shapes are qualitatively correct:
+   i_Lm ramps linearly (clamped by the reflected output while the secondary
+   conducts), i_Lr is a resonant sinusoid at fr, and the secondary carries
+   the difference. Values are normalised, not a circuit solver. */
+
+var M_RATIO = 6, FM = 1 / Math.sqrt(M_RATIO);
+var W = 480, H = 220, PADL = 30, PADR = 10, PADT = 26, PADB = 30;
+var SPLIT = 150;
+
+var $ = function (id) { return document.getElementById(id); };
+var scope = $("scope");
+var phase = 0;
+
+var X = function (u) { return PADL + u * (W - PADL - PADR); };
+var YI = function (i) { return PADT + (1 - (i + 1.6) / 3.2) * (SPLIT - PADT); };
+var YV = function (v) { return SPLIT + 22 + (1 - v) * (H - PADB - SPLIT - 26); };
+
+function model(fn, load) {
+  var cycles = 2;
+  var N = 240;
+  var ilr = [], ilm = [], isec = [], pts = [];
+  var Ipk = 0.55 + 0.85 * load;
+  var slope = 1.05 / fn;
+
+  for (var k = 0; k <= N; k++) {
+    var u = k / N;
+    var t = u * cycles;
+    var lr = Ipk * Math.sin(2 * Math.PI * t / fn);
+    var tri = t % 1;
+    var lm = slope * (tri < 0.5 ? (tri * 4 - 1) : (3 - tri * 4)) * 0.5;
+    ilr.push(lr); ilm.push(lm);
+    isec.push(lr - lm);
+    pts.push(u);
+  }
+  return { u: pts, ilr: ilr, ilm: ilm, isec: isec, Ipk: Ipk, N: N };
+}
+
+function poly(u, arr, f) {
+  var p = [];
+  for (var k = 0; k < arr.length; k++) p.push(X(u[k]).toFixed(1) + "," + f(arr[k]).toFixed(1));
+  return p.join(" ");
+}
+
+function render() {
+  var fn = parseFloat($("fn").value);
+  var load = parseFloat($("ld").value) / 100;
+  var d = model(fn, load);
+
+  var region = fn < FM ? 1 : (fn < 1 ? 2 : 3);
+  var circ = 0;
+  for (var k = 0; k < d.ilm.length; k++) circ += Math.abs(d.ilm[k]);
+  circ = circ / d.ilm.length;
+
+  $("fnrd").textContent = fn.toFixed(2);
+  $("ldrd").textContent = (load * 100).toFixed(0) + " %";
+  $("region").textContent = region === 1 ? "1 · Capacitive" : (region === 2 ? "2 · Boost" : "3 · Buck");
+  $("ipk").innerHTML = d.Ipk.toFixed(2) + " <small>pu</small>";
+  $("circ").innerHTML = circ.toFixed(2) + " <small>pu</small>";
+
+  var v = $("verdict");
+  if (region === 1) {
+    v.textContent = "ZVS lost — hard switching";
+    v.style.background = "rgba(239,68,68,.16)"; v.style.color = "#EF4444";
+  } else if (circ > 0.55) {
+    v.textContent = "ZVS, high circulating loss";
+    v.style.background = "rgba(245,197,66,.16)"; v.style.color = "#F5C542";
+  } else {
+    v.textContent = "ZVS achieved";
+    v.style.background = "rgba(43,210,125,.16)"; v.style.color = "#2BD27D";
+  }
+
+  var s = "";
+  s += '<line class="zero" x1="' + PADL + '" y1="' + YI(0) + '" x2="' + (W - PADR) + '" y2="' + YI(0) + '"/>';
+  s += '<text class="ax" x="' + (PADL - 4) + '" y="' + (YI(0) + 3) + '" text-anchor="end">0</text>';
+
+  /* secondary conduction band */
+  var band = [];
+  for (var j = 0; j < d.N; j++) {
+    band.push(X(d.u[j]).toFixed(1) + "," + YI(Math.max(0, d.isec[j])).toFixed(1));
+  }
+  s += '<polygon class="isec" points="' + X(0) + ',' + YI(0) + ' ' + band.join(" ") + ' ' + X(1) + ',' + YI(0) + '"/>';
+
+  s += '<polyline class="ilm" points="' + poly(d.u, d.ilm, YI) + '"/>';
+  s += '<polyline class="ilr" points="' + poly(d.u, d.ilr, YI) + '"/>';
+
+  /* half-bridge square wave */
+  var sq = [];
+  for (var c = 0; c < 2; c++) {
+    sq.push(X(c / 2) + "," + YV(1), X(c / 2 + 0.25) + "," + YV(1),
+            X(c / 2 + 0.25) + "," + YV(0), X(c / 2 + 0.5) + "," + YV(0));
+  }
+  s += '<polyline class="vsq" points="' + sq.join(" ") + '"/>';
+  s += '<text class="ax" x="' + PADL + '" y="' + (H - 6) + '">switching node</text>';
+
+  s += '<text class="key" fill="#2BD27D" x="' + PADL + '" y="14">i_Lr</text>';
+  s += '<text class="key" fill="#F5C542" x="' + (PADL + 44) + '" y="14">i_Lm</text>';
+  s += '<text class="key" fill="#2C66EA" x="' + (PADL + 92) + '" y="14">secondary conduction</text>';
+
+  var cx = X(phase % 1);
+  s += '<line class="cursor" x1="' + cx + '" y1="' + PADT + '" x2="' + cx + '" y2="' + (H - PADB) + '"/>';
+
+  scope.innerHTML = s;
+}
+
+var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+var raf = null;
+
+function step() {
+  phase += 0.004;
+  render();
+  raf = requestAnimationFrame(step);
+}
+
+$("play").addEventListener("click", function () {
+  if (raf) { cancelAnimationFrame(raf); raf = null; this.textContent = "Run"; }
+  else { raf = requestAnimationFrame(step); this.textContent = "Pause"; }
+});
+
+if (reduce) $("play").style.display = "none";
+
+["fn", "ld"].forEach(function (id) { $(id).addEventListener("input", render); });
+render();
+</script>
+</body>
+</html>

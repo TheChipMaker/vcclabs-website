@@ -1,0 +1,190 @@
+---
+permalink: "/widgets/llc-regions/"
+layout: null
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLC operating regions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --brand:#15B86A; --brand-b:#2BD27D;
+  --signal:#2C66EA; --fault:#EF4444; --warn:#F5C542;
+  --txt:#E7E9ED; --mut:#8A94A1; --mut2:#B7BEC9;
+  --panel:#161A20; --line:#2a3038;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:transparent;color:var(--txt);font-family:var(--body);
+  display:flex;flex-direction:column;gap:9px;padding:10px;user-select:none;overflow:hidden}
+
+.plot{flex:1;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:8px 10px;display:flex;flex-direction:column}
+.plot svg{flex:1;width:100%}
+.grid-l{stroke:#22282f;stroke-width:1}
+.curve{stroke:#4a5563;stroke-width:1.3;fill:none}
+.curve.sel{stroke:var(--mut2);stroke-width:2.2}
+.unity{stroke:var(--mut);stroke-width:1;stroke-dasharray:3 3}
+.divider{stroke-width:1.4;stroke-dasharray:5 4}
+.ax{font:500 8px var(--mono);fill:var(--mut)}
+.rlabel{font:600 10px var(--mono)}
+.marker{stroke:#0e1116;stroke-width:2}
+
+.tabs{flex:none;display:flex;gap:8px}
+.tab{flex:1;background:var(--panel);border:1px solid var(--line);border-top-width:3px;
+  border-radius:9px;padding:8px 10px;cursor:pointer;text-align:left;color:var(--mut2)}
+.tab .t{font:600 11px var(--body);display:block}
+.tab .d{font:400 9.5px var(--body);color:var(--mut);margin-top:2px;display:block;line-height:1.35}
+.tab.on{color:#fff;background:#1F242C}
+.tab[data-r="1"]{border-top-color:var(--fault)}
+.tab[data-r="2"]{border-top-color:var(--brand)}
+.tab[data-r="3"]{border-top-color:var(--signal)}
+
+.ctl{flex:none;display:flex;gap:10px;align-items:center}
+.sld{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+.sld .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.sld .nm{font:600 9.5px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--mut2)}
+.sld .rd{font:600 13px var(--mono);color:var(--brand-b)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#2a3038;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+.play{flex:none;background:var(--brand);color:#04140b;border:none;border-radius:9px;
+  padding:11px 16px;font:600 11px var(--body);cursor:pointer;min-width:74px}
+</style>
+</head>
+<body>
+
+<div class="plot">
+  <svg id="plot" viewBox="0 0 460 200" preserveAspectRatio="none"></svg>
+</div>
+
+<div class="tabs">
+  <button class="tab" data-r="1" type="button"><span class="t">1 · Capacitive</span><span class="d">Below f<sub>m</sub>. ZVS lost, body-diode reverse recovery. Never operate here.</span></button>
+  <button class="tab on" data-r="2" type="button"><span class="t">2 · Boost · ZVS</span><span class="d">Between f<sub>m</sub> and f<sub>r</sub>. Inductive, gain above 1. This is home.</span></button>
+  <button class="tab" data-r="3" type="button"><span class="t">3 · Buck · ZVS</span><span class="d">Above f<sub>r</sub>. ZVS holds, gain below 1, circulating current rises.</span></button>
+</div>
+
+<div class="ctl">
+  <button class="play" id="play" type="button">Sweep</button>
+  <div class="sld">
+    <div class="top"><span class="nm">Frequency f<sub>n</sub></span><span class="rd" id="fnrd">1.00</span></div>
+    <input type="range" id="fn" min="0.3" max="2" step="0.005" value="1">
+  </div>
+</div>
+
+<script>
+function gain(fn, m, Q) {
+  var a = fn * fn * (m - 1);
+  var b = m * fn * fn - 1;
+  var c = fn * (fn * fn - 1) * (m - 1) * Q;
+  return a / Math.sqrt(b * b + c * c);
+}
+
+var M_RATIO = 6, Q_SEL = 0.4;
+var W = 460, H = 200, PADL = 28, PADR = 10, PADT = 12, PADB = 20;
+var FN0 = 0.3, FN1 = 2.0, G1 = 2.4;
+var FM = 1 / Math.sqrt(M_RATIO);
+
+var $ = function (id) { return document.getElementById(id); };
+var plot = $("plot");
+var X = function (f) { return PADL + (f - FN0) / (FN1 - FN0) * (W - PADL - PADR); };
+var Y = function (g) { return PADT + (1 - g / G1) * (H - PADT - PADB); };
+
+function regionOf(fn) { return fn < FM ? 1 : (fn < 1 ? 2 : 3); }
+
+function path(Q) {
+  var p = [];
+  for (var f = FN0; f <= FN1 + 1e-9; f += 0.005) {
+    var g = gain(f, M_RATIO, Q);
+    if (isFinite(g)) p.push(X(f).toFixed(1) + "," + Y(Math.min(g, G1)).toFixed(1));
+  }
+  return p.join(" ");
+}
+
+var COL = { 1: "#EF4444", 2: "#15B86A", 3: "#2C66EA" };
+
+function render() {
+  var fn = parseFloat($("fn").value);
+  var r = regionOf(fn);
+  var g = gain(fn, M_RATIO, Q_SEL);
+
+  $("fnrd").textContent = fn.toFixed(2);
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.classList.toggle("on", +t.dataset.r === r);
+  });
+
+  var s = "";
+  s += '<rect x="' + X(FN0) + '" y="' + PADT + '" width="' + (X(FM) - X(FN0)) + '" height="' + (Y(0) - PADT) + '" fill="#EF4444" opacity="' + (r === 1 ? 0.16 : 0.05) + '"/>';
+  s += '<rect x="' + X(FM) + '" y="' + PADT + '" width="' + (X(1) - X(FM)) + '" height="' + (Y(0) - PADT) + '" fill="#15B86A" opacity="' + (r === 2 ? 0.16 : 0.05) + '"/>';
+  s += '<rect x="' + X(1) + '" y="' + PADT + '" width="' + (X(FN1) - X(1)) + '" height="' + (Y(0) - PADT) + '" fill="#2C66EA" opacity="' + (r === 3 ? 0.16 : 0.05) + '"/>';
+
+  for (var v = 0; v <= G1; v += 0.4) {
+    s += '<line class="grid-l" x1="' + PADL + '" y1="' + Y(v) + '" x2="' + (W - PADR) + '" y2="' + Y(v) + '"/>';
+    s += '<text class="ax" x="' + (PADL - 4) + '" y="' + (Y(v) + 3) + '" text-anchor="end">' + v.toFixed(1) + '</text>';
+  }
+
+  [0.15, 0.3, 0.6, 0.9].forEach(function (q) {
+    s += '<polyline class="curve" points="' + path(q) + '"/>';
+  });
+  s += '<polyline class="curve sel" points="' + path(Q_SEL) + '"/>';
+
+  s += '<line class="unity" x1="' + PADL + '" y1="' + Y(1) + '" x2="' + (W - PADR) + '" y2="' + Y(1) + '"/>';
+  s += '<line class="divider" stroke="#EF4444" x1="' + X(FM) + '" y1="' + PADT + '" x2="' + X(FM) + '" y2="' + Y(0) + '"/>';
+  s += '<line class="divider" stroke="#2C66EA" x1="' + X(1) + '" y1="' + PADT + '" x2="' + X(1) + '" y2="' + Y(0) + '"/>';
+  s += '<text class="rlabel" fill="#EF4444" x="' + (X(FM) - 4) + '" y="' + (PADT + 10) + '" text-anchor="end">fm</text>';
+  s += '<text class="rlabel" fill="#2C66EA" x="' + (X(1) + 4) + '" y="' + (PADT + 10) + '">fr</text>';
+
+  s += '<text class="rlabel" fill="' + COL[1] + '" x="' + ((X(FN0) + X(FM)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 1</text>';
+  s += '<text class="rlabel" fill="' + COL[2] + '" x="' + ((X(FM) + X(1)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 2</text>';
+  s += '<text class="rlabel" fill="' + COL[3] + '" x="' + ((X(1) + X(FN1)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 3</text>';
+
+  s += '<circle class="marker" cx="' + X(fn) + '" cy="' + Y(Math.min(g, G1)) + '" r="5" fill="' + COL[r] + '"/>';
+
+  plot.innerHTML = s;
+}
+
+/* animated sweep, honouring reduced-motion */
+var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+var raf = null, dir = 1;
+
+function step() {
+  var v = parseFloat($("fn").value) + dir * 0.006;
+  if (v >= 2) { v = 2; dir = -1; }
+  if (v <= 0.3) { v = 0.3; dir = 1; }
+  $("fn").value = v;
+  render();
+  raf = requestAnimationFrame(step);
+}
+
+$("play").addEventListener("click", function () {
+  if (raf) { cancelAnimationFrame(raf); raf = null; this.textContent = "Sweep"; }
+  else { raf = requestAnimationFrame(step); this.textContent = "Pause"; }
+});
+
+if (reduce) $("play").style.display = "none";
+
+$("fn").addEventListener("input", function () {
+  if (raf) { cancelAnimationFrame(raf); raf = null; $("play").textContent = "Sweep"; }
+  render();
+});
+
+document.querySelectorAll(".tab").forEach(function (t) {
+  t.addEventListener("click", function () {
+    var r = +t.dataset.r;
+    $("fn").value = r === 1 ? 0.34 : (r === 2 ? (FM + 1) / 2 : 1.45);
+    if (raf) { cancelAnimationFrame(raf); raf = null; $("play").textContent = "Sweep"; }
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

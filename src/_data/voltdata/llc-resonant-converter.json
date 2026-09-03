@@ -226,6 +226,95 @@
         { "text": "<b>Typical designs land between 3 and 8</b>, chosen to just cover the required gain at the low-line, full-load corner.", "tone": "ready" }
       ],
       "callout": "This is the central trade of LLC design: <b>gain range against efficiency</b>. Every other choice follows from where you settle it."
+    },
+        {
+      "id": "region-map",
+      "type": "split",
+      "ref": "V01-S10",
+      "eyebrow": "The map",
+      "title": "Three regions, and only<br><span class=\"hl\">one</span> of them is home",
+      "titleSize": 38,
+      "leftFlex": 1.35,
+      "rightFlex": 0.85,
+      "widget": "llc-regions",
+      "widgetTitle": "Interactive operating region map",
+      "points": [
+        { "text": "<b>f<sub>m</sub> and f<sub>r</sub> cut the axis into three.</b> Every LLC design decision is really a decision about which side of these two lines you sit on." },
+        { "text": "<b>Region 2 is the design target.</b> Inductive tank, ZVS intact, gain above 1 when you need it.", "tone": "ready" },
+        { "text": "<b>Region 3 is acceptable.</b> Still ZVS, but you are buying gain reduction with circulating current." },
+        { "text": "<b>Region 1 destroys hardware.</b> Not inefficient — destructive. The next slide is entirely about why.", "tone": "fault" }
+      ],
+      "callout": "Press <b>Sweep</b> and watch the marker cross the boundaries, or click a region to jump straight to it."
+    },
+    {
+      "id": "region-one",
+      "type": "parallel",
+      "ref": "V01-S11",
+      "surface": "invert",
+      "eyebrow": "The trap",
+      "title": "Below f<sub>m</sub> the tank goes capacitive<br>and the <span class=\"hl\">FETs stop surviving</span>",
+      "titleSize": 38,
+      "lead": "Region 1 is not a low-efficiency corner you can live with. It is a failure mode. When the tank turns capacitive the current leads the voltage, which reverses the entire mechanism that made soft switching possible.",
+      "columns": [
+        {
+          "label": "The chain of events",
+          "tone": "cost",
+          "items": [
+            "Tank current leads voltage instead of lagging it",
+            "At turn-off there is no current left to discharge C<sub>oss</sub>",
+            "The body diode conducts, then is force-commutated off",
+            "Reverse recovery dumps a current spike through the die",
+            "Shoot-through, then the half-bridge is gone"
+          ]
+        },
+        {
+          "label": "How you end up there",
+          "tone": "cost",
+          "items": [
+            "Startup, before the output has built up",
+            "Output short circuit — the controller chases gain downward",
+            "Overload at low line, pushing past the peak of the gain curve",
+            "A control loop with no hard low-frequency clamp"
+          ]
+        }
+      ],
+      "callout": "Note the shape of the trap: the controller lowers frequency to <i>raise</i> gain, but past the peak, lowering frequency <b>lowers</b> gain. The loop chases the wrong way and drives itself into region 1. Every practical LLC controller has a minimum frequency clamp for exactly this reason."
+    },
+    {
+      "id": "cycle",
+      "type": "split",
+      "ref": "V01-S12",
+      "eyebrow": "One switching cycle",
+      "title": "What the currents are<br>actually doing",
+      "titleSize": 40,
+      "leftFlex": 1.4,
+      "rightFlex": 0.85,
+      "widget": "llc-waveforms",
+      "widgetTitle": "Animated LLC waveform explorer",
+      "points": [
+        { "text": "<b>i<sub>Lr</sub> is close to sinusoidal</b> because the tank rings at f<sub>r</sub> regardless of how fast you switch it." },
+        { "text": "<b>i<sub>Lm</sub> is a triangle.</b> Lm sees the reflected output voltage clamped across it, so its current ramps linearly." },
+        { "text": "<b>The secondary carries the difference.</b> Where the two traces separate, the output diodes conduct; where they meet, the secondary goes dark.", "tone": "ready" }
+      ],
+      "callout": "Press <b>Run</b>. The magnetising current is the part that never reaches the load — it circulates, and it is the price of soft switching."
+    },
+    {
+      "id": "circulating",
+      "type": "split",
+      "ref": "V01-S13",
+      "eyebrow": "The cost of ZVS",
+      "title": "Circulating current is not waste,<br>it is the <span class=\"hl\">fee</span>",
+      "titleSize": 38,
+      "leftFlex": 1.4,
+      "rightFlex": 0.85,
+      "widget": "llc-waveforms",
+      "widgetTitle": "Animated LLC waveform explorer — load sweep",
+      "points": [
+        { "text": "<b>i<sub>Lm</sub> at turn-off is what discharges C<sub>oss</sub>.</b> Remove it and you lose ZVS — this current is buying the soft transition." },
+        { "text": "<b>But it flows through the FETs and windings anyway</b>, producing conduction loss that delivers nothing to the output.", "tone": "fault" },
+        { "text": "<b>Smaller Lm means more of it</b>, so more ZVS margin and worse efficiency. Larger Lm is the reverse." },
+        { "text": "<b>Light load is the hard case.</b> Drop the load slider and watch the useful current shrink while the circulating current stays put." }
+      ],
+      "callout": "This is why <b>m</b> from slide 9 and the ZVS window from slide 2 are the same conversation. Choosing m is choosing how much you overpay for soft switching at every operating point."
     }
-  ]
-}
+]}
