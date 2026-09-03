@@ -26,7 +26,8 @@
      slide is normal, or the theme is light and the slide is inverted. */
   function markSurfaces() {
     var dark = document.documentElement.getAttribute("data-theme") === "dark";
-    slides.forEach(function (s) {
+    var all = document.querySelectorAll(".slide");
+    Array.prototype.forEach.call(all, function (s) {
       var inv = s.classList.contains("invert");
       s.classList.toggle("on-dark", dark ? !inv : inv);
     });
@@ -53,23 +54,62 @@
     return 0;
   }
 
-  slides.forEach(function (s, k) {
-    var li = document.createElement("li");
-    var b = document.createElement("button");
-    b.type = "button";
-    b.innerHTML = '<span class="n">' + String(k + 1).padStart(2, "0") + "</span><span>" +
-      (s.dataset.title || "Slide " + (k + 1)) + "</span>";
-    b.addEventListener("click", function () {
-      panel.classList.remove("is-open");
-      show(k, true);
+  var THUMB_W = 260, thumbsBuilt = false;
+
+  function buildThumbs() {
+    if (thumbsBuilt) return;
+    var scale = THUMB_W / W;
+
+    slides.forEach(function (s, k) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.type = "button";
+
+      var holder = document.createElement("div");
+      holder.className = "thumb-holder";
+      holder.style.height = (H * scale) + "px";
+
+      var mini = s.cloneNode(true);
+      mini.removeAttribute("id");
+      mini.removeAttribute("data-slide");
+      mini.classList.add("is-active");
+      mini.style.transform = "scale(" + scale + ")";
+
+      /* don't spawn a second copy of every widget iframe */
+      mini.querySelectorAll("iframe").forEach(function (f) {
+        var ph = document.createElement("div");
+        ph.className = "thumb-widget";
+        ph.textContent = "interactive";
+        f.parentNode.replaceChild(ph, f);
+      });
+      mini.querySelectorAll("[data-theme-toggle]").forEach(function (t) {
+        t.removeAttribute("data-theme-toggle");
+      });
+
+      holder.appendChild(mini);
+
+      var cap = document.createElement("span");
+      cap.className = "thumb-cap";
+      cap.innerHTML = '<span class="n">' + String(k + 1).padStart(2, "0") + "</span>" +
+        (s.dataset.title || "Slide " + (k + 1));
+
+      b.appendChild(holder);
+      b.appendChild(cap);
+      b.addEventListener("click", function () {
+        panel.classList.remove("is-open");
+        show(k, true);
+      });
+      li.appendChild(b);
+      list.appendChild(li);
     });
-    li.appendChild(b);
-    list.appendChild(li);
-  });
+
+    thumbsBuilt = true;
+    markSurfaces();
+  }
 
   prev.addEventListener("click", function () { show(i - 1, true); });
   next.addEventListener("click", function () { show(i + 1, true); });
-  openBtn.addEventListener("click", function () { panel.classList.add("is-open"); });
+  openBtn.addEventListener("click", function () { buildThumbs(); panel.classList.add("is-open"); });
   closeBtn.addEventListener("click", function () { panel.classList.remove("is-open"); });
 
   document.addEventListener("keydown", function (e) {
@@ -79,7 +119,7 @@
     if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); show(i - 1, true); }
     if (e.key === "Home") { e.preventDefault(); show(0, true); }
     if (e.key === "End") { e.preventDefault(); show(slides.length - 1, true); }
-    if (e.key === "o" || e.key === "O") panel.classList.toggle("is-open");
+    if (e.key === "o" || e.key === "O") { buildThumbs(); panel.classList.toggle("is-open"); }
     if (e.key === "f" || e.key === "F") { e.preventDefault(); toggleFullscreen(); }
   });
 

@@ -144,7 +144,7 @@
 .volt-index.is-open { display: block; }
 
 .volt-index-inner {
-  max-width: 760px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 28px 56px;
 }
@@ -189,32 +189,76 @@
 
 .volt-index .close:hover { color: #fff; border-color: var(--brand); }
 
-.volt-index ol {
+.volt-thumbs {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 16px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
-.volt-index li { border-top: 1px solid #242A32; }
-.volt-index li:first-child { border-top: none; }
-
-.volt-index button:not(.close) {
-  display: flex;
-  gap: 18px;
+.volt-thumbs button:not(.close) {
+  display: block;
   width: 100%;
-  padding: 14px 8px;
+  padding: 0;
   text-align: left;
   background: transparent;
-  border: none;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
   cursor: pointer;
   color: var(--chrome-text);
-  font: 400 15px var(--font-body);
 }
 
-.volt-index button:not(.close):hover { color: #fff; background: #14181e; }
-.volt-index button .n { font: 500 13px var(--font-mono); color: var(--brand); min-width: 34px; }
-.volt-index li.is-current button { color: #fff; }
-.volt-index li.is-current .n { color: var(--brand-bright); }
+.volt-thumbs button:not(.close):hover { border-color: #3a424d; }
+.volt-thumbs li.is-current button { border-color: var(--brand); }
+
+.thumb-holder {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #14181e;
+  pointer-events: none;
+}
+
+.thumb-holder .slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1280px;
+  height: 720px;
+  transform-origin: top left;
+  box-shadow: none;
+  border-radius: 0;
+  opacity: 1;
+  visibility: visible;
+}
+
+.thumb-widget {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #3a424d;
+  border-radius: 10px;
+  font: 500 28px var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4a5563;
+}
+
+.thumb-cap {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  font: 400 13px var(--font-body);
+  line-height: 1.35;
+}
+
+.thumb-cap .n { font: 500 12px var(--font-mono); color: var(--brand); flex: none; }
+.volt-thumbs li.is-current .thumb-cap { color: #fff; }
 
 .volt-index .close {
   flex: none;
