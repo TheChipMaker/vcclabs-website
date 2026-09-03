@@ -168,13 +168,14 @@
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --brand: #F5872E;
-  --brand-bright: #FF9D4D;
-  --brand-deep: #C6631A;
-
   --ready: #15B86A;
   --ready-bright: #2BD27D;
   --ready-deep: #0C7A48;
+
+  /* Brand and "ready" are the same token, by design. */
+  --brand: var(--ready);
+  --brand-bright: var(--ready-bright);
+  --brand-deep: var(--ready-deep);
   --signal: #2C66EA;
   --signal-deep: #1B4FCB;
   --fault: #EF4444;
@@ -249,6 +250,24 @@
 }
 
 .s-mark .ac { color: var(--brand-deep); }
+
+.s-head-right { display: inline-flex; align-items: center; gap: 20px; }
+
+.s-toggle {
+  font: 500 10.5px var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 13px;
+  color: var(--slate);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+.s-toggle:hover { color: var(--brand-deep); border-color: var(--brand-deep); }
+.slide.on-dark .s-toggle { color: var(--muted-2); border-color: #2a3038; }
+.slide.on-dark .s-toggle:hover { color: var(--brand-bright); border-color: var(--brand-bright); }
 
 .s-body {
   flex: 1;
@@ -478,7 +497,7 @@
   right: -140px;
   top: -140px;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(245, 135, 46, 0.16), transparent 62%);
+  background: radial-gradient(circle, rgba(21, 184, 106, 0.16), transparent 62%);
 }
 
 @media (prefers-reduced-motion: reduce) {

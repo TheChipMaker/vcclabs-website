@@ -1,6 +1,6 @@
 :root {
-  --navy: #0A1E38;
-  --orange: #FF6A13;
+  --navy: #0E1116;
+  --green: #15B86A;
   --measure: 68ch;
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-display: 'Sora', system-ui, sans-serif;
@@ -13,8 +13,8 @@
   --ink: var(--navy);
   --muted: #6B6558;
   --line: #DCD3C6;
-  --accent: #E85D0C;
-  --accent-soft: rgba(232, 93, 12, 0.09);
+  --accent: #0C7A48;
+  --accent-soft: rgba(21, 184, 106, 0.10);
   --accent-ink: #FFFFFF;
 }
 
@@ -24,9 +24,9 @@
   --ink: #F2EDE4;
   --muted: #9CA9B4;
   --line: #2A4767;
-  --accent: var(--orange);
-  --accent-soft: rgba(255, 106, 19, 0.14);
-  --accent-ink: #0C1B2E;
+  --accent: #2BD27D;
+  --accent-soft: rgba(43, 210, 125, 0.14);
+  --accent-ink: #0E1116;
 }
 
 * { box-sizing: border-box; }
