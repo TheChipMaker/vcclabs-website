@@ -60,7 +60,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
 
 <div class="top-row">
   <div class="plot">
-    <div class="cap">Gain curve at full load, with the required operating points</div>
+    <div class="cap">Gain curve at full load. Stresses are FHA estimates at f<sub>r</sub> — size from them, verify in simulation.</div>
     <svg id="plot" viewBox="0 0 400 180" preserveAspectRatio="none"></svg>
   </div>
   <div class="out">
@@ -69,7 +69,12 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
     <div class="res"><span class="k">C<sub>r</sub></span><span class="v" id="cr">—</span></div>
     <div class="res"><span class="k">L<sub>m</sub></span><span class="v" id="lm">—</span></div>
     <div class="res"><span class="k">M needed</span><span class="v" id="mneed">—</span></div>
+    <div class="res"><span class="k">I<sub>Lr</sub> rms</span><span class="v" id="ilr">—</span></div>
+    <div class="res"><span class="k">V<sub>Cr</sub> peak</span><span class="v" id="vcr">—</span></div>
+    <div class="res"><span class="k">I<sub>sec</sub> rms</span><span class="v" id="isec">—</span></div>
+    <div class="res"><span class="k">L<sub>m</sub> max (ZVS)</span><span class="v" id="lmmax">—</span></div>
     <div class="verdict" id="verdict">—</div>
+    <div class="verdict" id="zvs">—</div>
   </div>
 </div>
 
@@ -97,6 +102,14 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
   <div class="sld">
     <div class="top"><span class="nm">V<sub>out</sub></span><span class="rd" id="vordrd">48 V</span></div>
     <input type="range" id="vout" min="12" max="60" step="1" value="48">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">t<sub>dead</sub></span><span class="rd" id="tdrd">200 ns</span></div>
+    <input type="range" id="td" min="50" max="600" step="10" value="200">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">C<sub>o(tr)</sub> per FET</span><span class="rd" id="cordrd">120 pF</span></div>
+    <input type="range" id="cotr" min="20" max="600" step="5" value="120">
   </div>
 </div>
 
@@ -172,11 +185,46 @@ function render() {
     if (gain(f2, m, Q) >= Mneed) { fop = f2; break; }
   }
 
+  /* Stresses, FHA, evaluated at fr and full load — the standard sizing point.
+     Load component is the reflected fundamental; magnetising component is the
+     triangular ramp. They are treated as orthogonal, which is close but not
+     exact, so these are sizing figures rather than solved values. */
+  var Iout = pout / vout;
+  var Ts = 1 / fr;
+  var Ip_rms = Math.PI * Iout / (2 * Math.SQRT2 * n);
+  var Im_pk = n * vout * Ts / (4 * Lm);
+  var Im_rms = Im_pk / Math.sqrt(3);
+  var ILr_rms = Math.sqrt(Ip_rms * Ip_rms + Im_rms * Im_rms);
+  var ILr_pk = Math.SQRT2 * ILr_rms;
+  var Zc = 1 / (2 * Math.PI * fr * Cr);
+  var Vcr_pk = VNOM / 2 + ILr_pk * Zc;
+  var Isec_rms = Math.PI * Iout / (2 * Math.SQRT2) / Math.SQRT2;
+
+  var td = +$("td").value * 1e-9;
+  var cotr = +$("cotr").value * 1e-12;
+  var LmMax = td / (16 * cotr * fr);
+
+  $("tdrd").textContent = (td * 1e9).toFixed(0) + " ns";
+  $("cordrd").textContent = (cotr * 1e12).toFixed(0) + " pF";
+
   $("n").textContent = n.toFixed(2);
   $("lr").innerHTML = eng(Lr, "H");
   $("cr").innerHTML = eng(Cr, "F");
   $("lm").innerHTML = eng(Lm, "H");
   $("mneed").textContent = Mneed.toFixed(2);
+  $("ilr").innerHTML = ILr_rms.toFixed(2) + " <small>A</small>";
+  $("vcr").innerHTML = Vcr_pk.toFixed(0) + " <small>V</small>";
+  $("isec").innerHTML = Isec_rms.toFixed(1) + " <small>A</small>";
+  $("lmmax").innerHTML = eng(LmMax, "H");
+
+  var z = $("zvs");
+  if (Lm > LmMax) {
+    z.innerHTML = "ZVS fails — L<sub>m</sub> exceeds the dead-time bound<br>lower m, raise t<sub>dead</sub>, or pick a lower-charge FET";
+    z.style.background = "rgba(239,68,68,.16)"; z.style.color = "#EF4444";
+  } else {
+    z.innerHTML = "ZVS bound met — L<sub>m</sub> is " + (100 * Lm / LmMax).toFixed(0) + "% of the ceiling";
+    z.style.background = "rgba(43,210,125,.16)"; z.style.color = "#2BD27D";
+  }
 
   var v = $("verdict");
   var margin = pk / Mneed;
@@ -213,7 +261,7 @@ function render() {
   plot.innerHTML = s;
 }
 
-["vmin", "pout", "fr", "m", "q", "vout"].forEach(function (id) {
+["vmin", "pout", "fr", "m", "q", "vout", "td", "cotr"].forEach(function (id) {
   $(id).addEventListener("input", render);
 });
 render();
