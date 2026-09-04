@@ -112,13 +112,13 @@
         {
           "label": "Magnetizing resonance",
           "expression": "f<span class=\"hl\">m</span> = 1 / 2π√((L<sub>r</sub>+L<sub>m</sub>)C<sub>r</sub>)",
-          "note": "When the secondary stops conducting, Lm is unclamped and joins the resonance. Because Lm is much larger than Lr, this sits well below fr."
+          "note": "When the secondary stops conducting, Lm is unclamped and joins the resonance. Because Lm is much larger than Lr, this sits well below fr. It is the lower bound of the boost region, not the ZVS boundary — that lives higher up."
         }
       ],
       "points": [
         { "text": "<b>Above fr</b> the converter behaves like a series resonant circuit — gain is always below 1." },
         { "text": "<b>Between fm and fr</b> the converter can boost above 1. This is the useful region.", "tone": "ready" },
-        { "text": "<b>Below fm</b> the tank turns capacitive, ZVS is lost, and the design fails.", "tone": "fault" }
+        { "text": "<b>Somewhere between them the tank turns capacitive</b> and ZVS is lost. That crossover is not at f<sub>m</sub> — it depends on load, and it is the subject of slide 11.", "tone": "fault" }
       ]
     },
     {
@@ -238,7 +238,7 @@
       "widget": "regions",
       "widgetTitle": "Interactive operating region map",
       "points": [
-        { "text": "<b>f<sub>m</sub> and f<sub>r</sub> cut the axis into three.</b> Every LLC design decision is really a decision about which side of these two lines you sit on." },
+        { "text": "<b>Two boundaries, not two frequencies.</b> f<sub>r</sub> is a fixed vertical line. The capacitive boundary is not — it is the curve joining the peaks of every load curve, so it moves with load." },
         { "text": "<b>Region 2 is the design target.</b> Inductive tank, ZVS intact, gain above 1 when you need it.", "tone": "ready" },
         { "text": "<b>Region 3 is acceptable.</b> Still ZVS, but you are buying gain reduction with circulating current." },
         { "text": "<b>Region 1 destroys hardware.</b> Not inefficient — destructive. The next slide is entirely about why.", "tone": "fault" }
@@ -250,9 +250,9 @@
       "type": "parallel",
       "ref": "V01-S11",
       "eyebrow": "The trap",
-      "title": "Below f<sub>m</sub> the tank goes capacitive<br>and the <span class=\"hl\">FETs stop surviving</span>",
+      "title": "Past the peak the tank goes capacitive<br>and the <span class=\"hl\">FETs stop surviving</span>",
       "titleSize": 38,
-      "lead": "Region 1 is not a low-efficiency corner you can live with. It is a failure mode. When the tank turns capacitive the current leads the voltage, which reverses the entire mechanism that made soft switching possible.",
+      "lead": "Region 1 is not a low-efficiency corner you can live with. It is a failure mode. Join the peaks of every load curve and you get the line that separates inductive from capacitive operation — cross it and the current leads the voltage, reversing the entire mechanism that made soft switching possible. Heavier load pushes that line to a higher frequency, so full load at low line is where you meet it first.",
       "columns": [
         {
           "label": "The chain of events",
