@@ -62,8 +62,8 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 </div>
 
 <div class="tabs">
-  <button class="tab" data-r="1" type="button"><span class="t">1 · Capacitive</span><span class="d">Below f<sub>m</sub>. ZVS lost, body-diode reverse recovery. Never operate here.</span></button>
-  <button class="tab on" data-r="2" type="button"><span class="t">2 · Boost · ZVS</span><span class="d">Between f<sub>m</sub> and f<sub>r</sub>. Inductive, gain above 1. This is home.</span></button>
+  <button class="tab" data-r="1" type="button"><span class="t">1 · Capacitive</span><span class="d">Left of the peak. ZVS lost, body-diode reverse recovery. Never operate here.</span></button>
+  <button class="tab on" data-r="2" type="button"><span class="t">2 · Boost · ZVS</span><span class="d">Peak to f<sub>r</sub>. Inductive, gain above 1. This is home.</span></button>
   <button class="tab" data-r="3" type="button"><span class="t">3 · Buck · ZVS</span><span class="d">Above f<sub>r</sub>. ZVS holds, gain below 1, circulating current rises.</span></button>
 </div>
 
@@ -72,6 +72,10 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
   <div class="sld">
     <div class="top"><span class="nm">Frequency f<sub>n</sub></span><span class="rd" id="fnrd">1.00</span></div>
     <input type="range" id="fn" min="0.3" max="2" step="0.005" value="1">
+  </div>
+  <div class="sld">
+    <div class="top"><span class="nm">Load Q</span><span class="rd" id="qrd">0.40</span></div>
+    <input type="range" id="q" min="0.15" max="1.2" step="0.01" value="0.4">
   </div>
 </div>
 
@@ -84,6 +88,7 @@ function gain(fn, m, Q) {
 }
 
 var M_RATIO = 6, Q_SEL = 0.4;
+var Q0 = 0.15, Q1 = 1.2;
 var W = 460, H = 200, PADL = 28, PADR = 10, PADT = 12, PADB = 20;
 var FN0 = 0.3, FN1 = 2.0, G1 = 2.4;
 var FM = 1 / Math.sqrt(M_RATIO);
@@ -93,7 +98,27 @@ var plot = $("plot");
 var X = function (f) { return PADL + (f - FN0) / (FN1 - FN0) * (W - PADL - PADR); };
 var Y = function (g) { return PADT + (1 - g / G1) * (H - PADT - PADB); };
 
-function regionOf(fn) { return fn < FM ? 1 : (fn < 1 ? 2 : 3); }
+/* Capacitive boundary is the peak of the gain curve at the present load,
+   not fm. Scanned rather than solved: the peak has no closed form. */
+function peakFn(Q) {
+  var bf = FN0, bg = -1;
+  for (var f = FN0; f <= 1.0001; f += 0.001) {
+    var g = gain(f, M_RATIO, Q);
+    if (g > bg) { bg = g; bf = f; }
+  }
+  return bf;
+}
+
+function locus() {
+  var p = [];
+  for (var q = Q1; q >= Q0 - 1e-9; q -= 0.02) {
+    var f = peakFn(q);
+    p.push(X(f).toFixed(1) + "," + Y(Math.min(gain(f, M_RATIO, q), G1)).toFixed(1));
+  }
+  return p.join(" ");
+}
+
+function regionOf(fn, fpk) { return fn < fpk ? 1 : (fn < 1 ? 2 : 3); }
 
 function path(Q) {
   var p = [];
@@ -108,17 +133,20 @@ var COL = { 1: "#EF4444", 2: "#15B86A", 3: "#2C66EA" };
 
 function render() {
   var fn = parseFloat($("fn").value);
-  var r = regionOf(fn);
+  Q_SEL = parseFloat($("q").value);
+  var FPK = peakFn(Q_SEL);
+  var r = regionOf(fn, FPK);
   var g = gain(fn, M_RATIO, Q_SEL);
 
   $("fnrd").textContent = fn.toFixed(2);
+  $("qrd").textContent = Q_SEL.toFixed(2);
   document.querySelectorAll(".tab").forEach(function (t) {
     t.classList.toggle("on", +t.dataset.r === r);
   });
 
   var s = "";
-  s += '<rect x="' + X(FN0) + '" y="' + PADT + '" width="' + (X(FM) - X(FN0)) + '" height="' + (Y(0) - PADT) + '" fill="#EF4444" opacity="' + (r === 1 ? 0.16 : 0.05) + '"/>';
-  s += '<rect x="' + X(FM) + '" y="' + PADT + '" width="' + (X(1) - X(FM)) + '" height="' + (Y(0) - PADT) + '" fill="#15B86A" opacity="' + (r === 2 ? 0.16 : 0.05) + '"/>';
+  s += '<rect x="' + X(FN0) + '" y="' + PADT + '" width="' + (X(FPK) - X(FN0)) + '" height="' + (Y(0) - PADT) + '" fill="#EF4444" opacity="' + (r === 1 ? 0.16 : 0.05) + '"/>';
+  s += '<rect x="' + X(FPK) + '" y="' + PADT + '" width="' + (X(1) - X(FPK)) + '" height="' + (Y(0) - PADT) + '" fill="#15B86A" opacity="' + (r === 2 ? 0.16 : 0.05) + '"/>';
   s += '<rect x="' + X(1) + '" y="' + PADT + '" width="' + (X(FN1) - X(1)) + '" height="' + (Y(0) - PADT) + '" fill="#2C66EA" opacity="' + (r === 3 ? 0.16 : 0.05) + '"/>';
 
   for (var v = 0; v <= G1; v += 0.4) {
@@ -132,13 +160,15 @@ function render() {
   s += '<polyline class="curve sel" points="' + path(Q_SEL) + '"/>';
 
   s += '<line class="unity" x1="' + PADL + '" y1="' + Y(1) + '" x2="' + (W - PADR) + '" y2="' + Y(1) + '"/>';
-  s += '<line class="divider" stroke="#EF4444" x1="' + X(FM) + '" y1="' + PADT + '" x2="' + X(FM) + '" y2="' + Y(0) + '"/>';
+  s += '<line class="divider" stroke="#8A94A1" stroke-dasharray="2 3" x1="' + X(FM) + '" y1="' + PADT + '" x2="' + X(FM) + '" y2="' + Y(0) + '"/>';
+  s += '<polyline points="' + locus() + '" fill="none" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  s += '<line class="divider" stroke="#EF4444" x1="' + X(FPK) + '" y1="' + PADT + '" x2="' + X(FPK) + '" y2="' + Y(0) + '"/>';
   s += '<line class="divider" stroke="#2C66EA" x1="' + X(1) + '" y1="' + PADT + '" x2="' + X(1) + '" y2="' + Y(0) + '"/>';
-  s += '<text class="rlabel" fill="#EF4444" x="' + (X(FM) - 4) + '" y="' + (PADT + 10) + '" text-anchor="end">fm</text>';
+  s += '<text class="rlabel" fill="#8A94A1" x="' + (X(FM) - 4) + '" y="' + (H - 16) + '" text-anchor="end">fm</text>';
   s += '<text class="rlabel" fill="#2C66EA" x="' + (X(1) + 4) + '" y="' + (PADT + 10) + '">fr</text>';
 
-  s += '<text class="rlabel" fill="' + COL[1] + '" x="' + ((X(FN0) + X(FM)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 1</text>';
-  s += '<text class="rlabel" fill="' + COL[2] + '" x="' + ((X(FM) + X(1)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 2</text>';
+  s += '<text class="rlabel" fill="' + COL[1] + '" x="' + ((X(FN0) + X(FPK)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 1</text>';
+  s += '<text class="rlabel" fill="' + COL[2] + '" x="' + ((X(FPK) + X(1)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 2</text>';
   s += '<text class="rlabel" fill="' + COL[3] + '" x="' + ((X(1) + X(FN1)) / 2) + '" y="' + (H - 6) + '" text-anchor="middle">REGION 3</text>';
 
   s += '<circle class="marker" cx="' + X(fn) + '" cy="' + Y(Math.min(g, G1)) + '" r="5" fill="' + COL[r] + '"/>';
@@ -166,6 +196,7 @@ $("play").addEventListener("click", function () {
 
 if (reduce) $("play").style.display = "none";
 
+$("q").addEventListener("input", render);
 $("fn").addEventListener("input", function () {
   if (raf) { cancelAnimationFrame(raf); raf = null; $("play").textContent = "Sweep"; }
   render();
