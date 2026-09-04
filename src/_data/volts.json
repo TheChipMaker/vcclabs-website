@@ -3,8 +3,16 @@
     "title": "The LLC Resonant Converter",
     "slug": "llc-resonant-converter",
     "subject": "Power Electronics",
-    "minutes": 17,
+    "minutes": 19,
     "blurb": "Why half-bridge LLC exists, what the tank actually does, and how to read the gain curve without guessing.",
+    "status": "published"
+  },
+  {
+    "title": "Designing an LLC Converter",
+    "slug": "llc-converter-design",
+    "subject": "Power Electronics",
+    "minutes": 14,
+    "blurb": "A spec sheet in, a tank and a bill of materials out. The procedure, the constraints that fight it, and one worked example end to end.",
     "status": "published"
   }
 ]
