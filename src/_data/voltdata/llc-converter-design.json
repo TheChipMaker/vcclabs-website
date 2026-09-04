@@ -1,360 +1,434 @@
 {
-  "title": "Designing an LLC Converter",
-  "subject": "Power Electronics",
-  "level": "advanced",
-  "minutes": 14,
-  "blurb": "A spec sheet in, a tank and a bill of materials out. The procedure, the constraints that fight it, and one worked example end to end.",
-  "prerequisites": [
-    "Volt 01: The LLC Resonant Converter",
-    "FHA gain curve and the m/Q parameters",
-    "Transformer and magnetics basics"
-  ],
-  "slides": [
-    {
-      "id": "cover",
-      "type": "cover",
-      "surface": "default",
-      "series": "Power Electronics · Volt 02",
-      "title": "Designing an<br>LLC Converter",
-      "lead": "Volt 01 explained the topology. This one turns a specification into L\u2093, C\u1d63, L\u2098, a turns ratio, and part numbers you can actually order."
-    },
-    {
-      "id": "the-spec",
-      "type": "parallel",
-      "ref": "V02-S01",
-      "eyebrow": "The starting point",
-      "title": "Four numbers are handed to you,<br>and <span class=\"hl\">three</span> are yours to pick",
-      "titleSize": 38,
-      "lead": "Every LLC design begins the same way. Knowing which quantities are constraints and which are degrees of freedom is most of the discipline — the common failure is treating Q as a knob.",
-      "columns": [
+    "title": "Designing an LLC Converter",
+    "subject": "Power Electronics",
+    "level": "advanced",
+    "minutes": 14,
+    "blurb": "A spec sheet in, a tank and a bill of materials out. The procedure, the constraints that fight it, and one worked example end to end.",
+    "prerequisites": [
+        "Volt 01: The LLC Resonant Converter",
+        "FHA gain curve and the m/Q parameters",
+        "Transformer and magnetics basics"
+    ],
+    "slides": [
         {
-          "label": "Given by the specification",
-          "tone": "cost",
-          "items": [
-            "V<sub>in</sub> nominal, and the low-line corner you must hold",
-            "V<sub>out</sub> and the regulation window",
-            "P<sub>out</sub> at full load, and the light-load floor",
-            "Efficiency target and the enclosure that sets your thermal budget"
-          ]
+            "id": "cover",
+            "type": "cover",
+            "surface": "default",
+            "series": "Power Electronics · Volt 02",
+            "title": "Designing an<br>LLC Converter",
+            "lead": "Volt 01 explained the topology. This one turns a specification into Lr, Cr, Lm, a turns ratio, and part numbers you can actually order."
         },
         {
-          "label": "Yours to choose",
-          "tone": "gain",
-          "items": [
-            "<b>f<sub>r</sub></b> — trades magnetics size against core and gate loss",
-            "<b>m</b> — trades gain range against circulating current",
-            "<b>t<sub>dead</sub></b> — trades ZVS margin against conduction window",
-            "The FET, which sets C<sub>o(tr)</sub> and therefore constrains L<sub>m</sub>"
-          ]
-        }
-      ],
-      "callout": "<b>Q is on neither list.</b> Q is what your chosen L<sub>r</sub>/C<sub>r</sub> ratio becomes at the load the specification hands you. You choose the ratio; the load chooses Q."
-    },
-    {
-      "id": "turns-ratio",
-      "type": "equations",
-      "ref": "V02-S02",
-      "eyebrow": "Step 1",
-      "title": "Fix the turns ratio so nominal<br>input parks you on <span class=\"hl\">f<sub>r</sub></span>",
-      "titleSize": 38,
-      "lead": "At fr the gain is 1 regardless of load, the tank is purely resistive, and the converter is at its most efficient. Design so the input you see most of the time puts you there.",
-      "formulas": [
-        {
-          "label": "Turns ratio",
-          "expression": "n = (V<sub>in,nom</sub> / 2) / (V<sub>out</sub> + V<sub>f</sub>)",
-          "note": "The half comes from the half-bridge: the tank sees half the bus. Vf is the rectifier drop — small with synchronous rectification, not negligible with Schottkys at low Vout."
+            "id": "the-spec",
+            "type": "parallel",
+            "ref": "V02-S01",
+            "eyebrow": "The starting point",
+            "title": "Four numbers are handed to you,<br>and <span class=\"hl\">three</span> are yours to pick",
+            "titleSize": 38,
+            "lead": "Every LLC design begins the same way. Knowing which quantities are constraints and which are degrees of freedom is most of the discipline — the common failure is treating Q as a knob.",
+            "columns": [
+                {
+                    "label": "Given by the specification",
+                    "tone": "cost",
+                    "items": [
+                        "V<sub>in</sub> nominal, and the low-line corner you must hold",
+                        "V<sub>out</sub> and the regulation window",
+                        "P<sub>out</sub> at full load, and the light-load floor",
+                        "Efficiency target and the enclosure that sets your thermal budget"
+                    ]
+                },
+                {
+                    "label": "Yours to choose",
+                    "tone": "gain",
+                    "items": [
+                        "<b>f<sub>r</sub></b> — trades magnetics size against core and gate loss",
+                        "<b>m</b> — trades gain range against circulating current",
+                        "<b>t<sub>dead</sub></b> — trades ZVS margin against conduction window",
+                        "The FET, which sets C<sub>o(tr)</sub> and therefore constrains L<sub>m</sub>"
+                    ]
+                }
+            ],
+            "callout": "<b>Q is on neither list.</b> Q is what your chosen L<sub>r</sub>/C<sub>r</sub> ratio becomes at the load the specification hands you. You choose the ratio; the load chooses Q."
         },
         {
-          "label": "Gain you must produce",
-          "expression": "M = n·V<sub>out</sub> / (V<sub>in</sub> / 2)",
-          "note": "Evaluate at the low-line corner. That number is the entire reason the tank needs any boost capability at all."
-        }
-      ],
-      "points": [
-        { "text": "<b>Larger n</b> lowers primary current for the same power, which helps conduction loss on the side where the voltage is high." },
-        { "text": "<b>But larger n</b> raises the gain demanded at low line, which forces smaller m and more circulating current.", "tone": "fault" },
-        { "text": "<b>The PFC stage sets your job.</b> A well-regulated 390 V bus that only sags during hold-up needs far less boost than a wide-input design.", "tone": "ready" }
-      ],
-      "callout": "Hold-up time is where this bites. If the bus is allowed to droop to 330 V while the output stays in regulation, you have just specified M = 1.18 and the whole tank follows from it."
-    },
-    {
-      "id": "q-constraint",
-      "type": "equations",
-      "ref": "V02-S03",
-      "eyebrow": "Step 2",
-      "title": "Q has a ceiling,<br>and it is not <span class=\"hl\">yours</span>",
-      "titleSize": 40,
-      "lead": "Load Q too heavily and the gain curve flattens below what low line demands, or worse, the operating point crosses into the capacitive region. There is a maximum Q the design tolerates, and it must be computed at the worst corner.",
-      "formulas": [
-        {
-          "label": "Q as it is actually set",
-          "expression": "Q = √(L<sub>r</sub>/C<sub>r</sub>) / R<sub>ac</sub>",
-          "note": "Rac = 8n²V\u2092\u1d64\u209c²/π²P\u2092\u1d64\u209c. Heavy load means small Rac means large Q. You pick the impedance ratio; the specification picks the rest."
+            "id": "turns-ratio",
+            "type": "equations",
+            "ref": "V02-S02",
+            "eyebrow": "Step 1",
+            "title": "Fix the turns ratio so nominal<br>input parks you on <span class=\"hl\">f<sub>r</sub></span>",
+            "titleSize": 38,
+            "lead": "At fr the gain is 1 regardless of load, the tank is purely resistive, and the converter is at its most efficient. Design so the input you see most of the time puts you there.",
+            "formulas": [
+                {
+                    "label": "Turns ratio",
+                    "expression": "n = (V<sub>in,nom</sub> / 2) / (V<sub>out</sub> + V<sub>f</sub>)",
+                    "note": "The half comes from the half-bridge: the tank sees half the bus. Vf is the rectifier drop — small with synchronous rectification, not negligible with Schottkys at low Vout."
+                },
+                {
+                    "label": "Gain you must produce",
+                    "expression": "M = n·V<sub>out</sub> / (V<sub>in</sub> / 2)",
+                    "note": "Evaluate at the low-line corner. That number is the entire reason the tank needs any boost capability at all."
+                }
+            ],
+            "points": [
+                {
+                    "text": "<b>Larger n</b> lowers primary current for the same power, which helps conduction loss on the side where the voltage is high."
+                },
+                {
+                    "text": "<b>But larger n</b> raises the gain demanded at low line, which forces smaller m and more circulating current.",
+                    "tone": "fault"
+                },
+                {
+                    "text": "<b>The PFC stage sets your job.</b> A well-regulated 390 V bus that only sags during hold-up needs far less boost than a wide-input design.",
+                    "tone": "ready"
+                }
+            ],
+            "callout": "Hold-up time is where this bites. If the bus is allowed to droop to 330 V while the output stays in regulation, you have just specified M = 1.18 and the whole tank follows from it."
         },
         {
-          "label": "The ceiling",
-          "expression": "Q<sub>ZVS</sub> : where the input impedance phase reaches <span class=\"hl\">zero</span>",
-          "note": "Evaluate at maximum output power and minimum input voltage — the corner where the phase margin is smallest. Then back off."
-        }
-      ],
-      "points": [
-        { "text": "<b>Take 5 to 10% margin</b> below Q<sub>ZVS</sub>. Component tolerance, temperature drift on C<sub>r</sub>, and transient overshoot all eat into it." },
-        { "text": "<b>Overload walks you off the edge.</b> Exceed the load the Q<sub>max</sub> curve was drawn for and the operating point crosses into capacitive operation, where hard switching can destroy the primary FETs.", "tone": "fault" },
-        { "text": "<b>This is why the current limit is a tank parameter</b>, not just a controller setting. The two are specified together or not at all.", "tone": "ready" }
-      ],
-      "callout": "Design at <b>full load, low line</b>. Every other operating point is easier, and a design that survives that corner survives the rest by construction."
-    },
-    {
-      "id": "choose-m",
-      "type": "split",
-      "ref": "V02-S04",
-      "eyebrow": "Step 3",
-      "title": "Pick m so the peak clears<br>your required gain",
-      "titleSize": 38,
-      "leftFlex": 1.45,
-      "rightFlex": 0.8,
-      "widget": "llc-resonant-converter/tank-designer",
-      "widgetTitle": "Interactive LLC tank designer",
-      "points": [
-        { "text": "<b>The peak gain has no closed form.</b> You cannot solve the FHA equation for it — it is found numerically, or read from published peak-gain-versus-Q curves plotted for each m." },
-        { "text": "<b>Lower m raises the peak</b> and widens the boost region, at the cost of circulating current and full-load efficiency." },
-        { "text": "<b>Leave 10 to 20% margin</b> above the required gain, for start-up and load transients. FHA overestimates the real peak, so the margin is not optional.", "tone": "ready" },
-        { "text": "<b>Most designs land at m between 3 and 8.</b> Below 3 the efficiency penalty is severe; above 8 there is barely any boost left." }
-      ],
-      "callout": "Drag <b>m</b> down and watch the peak rise past the required-gain line. Then look at what happens to L<sub>m</sub> — you have just bought gain range with circulating current."
-    },
-    {
-      "id": "solve-tank",
-      "type": "equations",
-      "ref": "V02-S05",
-      "eyebrow": "Step 4",
-      "title": "Now the tank falls out<br>in <span class=\"hl\">three lines</span>",
-      "titleSize": 40,
-      "lead": "With fr, m and Q settled, there is nothing left to decide. The resonant components are determined, and the only remaining question is whether the resulting Lm survives the ZVS check on the next slide.",
-      "formulas": [
-        {
-          "label": "The series pair",
-          "expression": "L<sub>r</sub> = Q·R<sub>ac</sub> / 2πf<sub>r</sub><br>C<sub>r</sub> = 1 / 2πf<sub>r</sub>Q·R<sub>ac</sub>",
-          "note": "Two equations, two unknowns: Q fixes the ratio √(Lr/Cr), fr fixes the product LrCr. Together they pin both values exactly."
+            "id": "q-constraint",
+            "type": "equations",
+            "ref": "V02-S03",
+            "eyebrow": "Step 2",
+            "title": "Q has a ceiling,<br>and it is not <span class=\"hl\">yours</span>",
+            "titleSize": 40,
+            "lead": "Load Q too heavily and the gain curve flattens below what low line demands, or worse, the operating point crosses into the capacitive region. There is a maximum Q the design tolerates, and it must be computed at the worst corner.",
+            "formulas": [
+                {
+                    "label": "Q as it is actually set",
+                    "expression": "Q = √(L<sub>r</sub>/C<sub>r</sub>) / R<sub>ac</sub>",
+                    "note": "R<sub>ac</sub> = 8n²V<sub>out</sub>²/π²P<sub>out</sub>. Heavy load means small R<sub>ac</sub> means large Q. You pick the impedance ratio; the specification picks the rest."
+                },
+                {
+                    "label": "The ceiling",
+                    "expression": "Q<sub>ZVS</sub> : where the input impedance phase reaches <span class=\"hl\">zero</span>",
+                    "note": "Evaluate at maximum output power and minimum input voltage — the corner where the phase margin is smallest. Then back off."
+                }
+            ],
+            "points": [
+                {
+                    "text": "<b>Take 5 to 10% margin</b> below Q<sub>ZVS</sub>. Component tolerance, temperature drift on C<sub>r</sub>, and transient overshoot all eat into it."
+                },
+                {
+                    "text": "<b>Overload walks you off the edge.</b> Exceed the load the Q<sub>max</sub> curve was drawn for and the operating point crosses into capacitive operation, where hard switching can destroy the primary FETs.",
+                    "tone": "fault"
+                },
+                {
+                    "text": "<b>This is why the current limit is a tank parameter</b>, not just a controller setting. The two are specified together or not at all.",
+                    "tone": "ready"
+                }
+            ],
+            "callout": "Design at <b>full load, low line</b>. Every other operating point is easier, and a design that survives that corner survives the rest by construction."
         },
         {
-          "label": "The magnetising inductance",
-          "expression": "L<sub>m</sub> = (<span class=\"hl\">m</span> − 1) · L<sub>r</sub>",
-          "note": "A provisional value only. It is the gain curve's opinion of Lm, and the dead time may well overrule it."
-        }
-      ],
-      "points": [
-        { "text": "<b>Round to real parts, then recompute.</b> C<sub>r</sub> comes in E12 values and f<sub>r</sub> moves when you round it. Recalculate f<sub>r</sub> from the parts you can actually buy, not the other way round.", "tone": "ready" },
-        { "text": "<b>L<sub>r</sub> is often the transformer leakage.</b> If you are integrating it, this number is a winding-construction target, not a component you order." }
-      ],
-      "callout": "Everything to this point came from the gain curve alone. The gain curve does not know about your FETs, and that is the subject of the next slide."
-    },
-    {
-      "id": "zvs-check",
-      "type": "split",
-      "ref": "V02-S06",
-      "eyebrow": "Step 5",
-      "title": "Check L<sub>m</sub> against<br>the <span class=\"hl\">dead time</span>",
-      "titleSize": 38,
-      "leftFlex": 1.45,
-      "rightFlex": 0.8,
-      "widget": "llc-resonant-converter/tank-designer",
-      "widgetTitle": "Interactive LLC tank designer — ZVS check",
-      "points": [
-        { "text": "<b>L<sub>m</sub> ≤ t<sub>dead</sub> / (16·C<sub>o(tr)</sub>·f<sub>r</sub>).</b> If the provisional L<sub>m</sub> exceeds this, ZVS does not happen and no amount of gain-curve tuning fixes it." },
-        { "text": "<b>Three ways out.</b> Lengthen t<sub>dead</sub>, choose a FET with less output charge, or reduce m — in that order of preference, because the third one costs efficiency everywhere." },
-        { "text": "<b>C<sub>o(tr)</sub>, not datasheet C<sub>oss</sub>.</b> Use the charge-equivalent value across the full V<sub>ds</sub> swing. The spot capacitance at rated voltage will flatter the design by a wide margin.", "tone": "fault" },
-        { "text": "<b>Longer dead time is not free.</b> It eats conduction window and narrows the achievable gain at the frequency extremes." }
-      ],
-      "callout": "Drag <b>C<sub>o(tr)</sub></b> up toward 600 pF and watch the ceiling collapse below the L<sub>m</sub> you wanted. That collision is why FET selection belongs in the tank design, not after it."
-    },
-    {
-      "id": "stresses",
-      "type": "split",
-      "ref": "V02-S07",
-      "eyebrow": "Step 6",
-      "title": "The numbers you actually<br><span class=\"hl\">order parts</span> from",
-      "titleSize": 38,
-      "leftFlex": 1.45,
-      "rightFlex": 0.8,
-      "widget": "llc-resonant-converter/tank-designer",
-      "widgetTitle": "Interactive LLC tank designer — stresses",
-      "points": [
-        { "text": "<b>I<sub>Lr</sub> rms</b> sizes the primary FET conduction loss, the resonant inductor wire, and the primary winding. It combines the reflected load current with the magnetising current." },
-        { "text": "<b>V<sub>Cr</sub> peak</b> is the DC blocking level plus the AC swing across C<sub>r</sub>. It routinely lands two to three times the rail — this is why C<sub>r</sub> is a 630 V part in a 390 V converter.", "tone": "fault" },
-        { "text": "<b>I<sub>sec</sub> rms</b> sizes the rectifier and the secondary winding, where the current is large and the copper is short and fat." },
-        { "text": "<b>These are FHA estimates at f<sub>r</sub>.</b> Good enough to select parts and set a thermal budget. Not good enough to skip the simulation." }
-      ],
-      "callout": "A design is not finished when L<sub>r</sub>, C<sub>r</sub> and L<sub>m</sub> exist. It is finished when every part in the loop has a rating with margin against these numbers at the worst corner."
-    },
-    {
-      "id": "resonant-cap",
-      "type": "parallel",
-      "ref": "V02-S08",
-      "eyebrow": "The part people get wrong",
-      "title": "C<sub>r</sub> is a resonant component,<br>not a <span class=\"hl\">decoupling cap</span>",
-      "titleSize": 38,
-      "lead": "It carries the full resonant current continuously, sets fr directly, and sees a peak voltage far above the rail. Substituting the wrong dielectric here changes the converter's resonant frequency in the field, as a function of temperature and bias.",
-      "columns": [
-        {
-          "label": "What it must survive",
-          "tone": "cost",
-          "items": [
-            "Peak voltage of roughly V<sub>in</sub>/2 plus the AC swing",
-            "Continuous rms current equal to the tank current",
-            "Self-heating from ESR at the switching frequency",
-            "Whatever the overload transient does before the clamp acts"
-          ]
+            "id": "choose-m",
+            "type": "split",
+            "ref": "V02-S04",
+            "eyebrow": "Step 3",
+            "title": "Pick m so the peak clears<br>your required gain",
+            "titleSize": 38,
+            "leftFlex": 1.45,
+            "rightFlex": 0.8,
+            "widget": "llc-resonant-converter/tank-designer",
+            "widgetTitle": "Interactive LLC tank designer",
+            "points": [
+                {
+                    "text": "<b>The peak gain has no closed form.</b> You cannot solve the FHA equation for it — it is found numerically, or read from published peak-gain-versus-Q curves plotted for each m."
+                },
+                {
+                    "text": "<b>Lower m raises the peak</b> and widens the boost region, at the cost of circulating current and full-load efficiency."
+                },
+                {
+                    "text": "<b>Leave 10 to 20% margin</b> above the required gain, for start-up and load transients. FHA overestimates the real peak, so the margin is not optional.",
+                    "tone": "ready"
+                },
+                {
+                    "text": "<b>Most designs land at m between 3 and 8.</b> Below 3 the efficiency penalty is severe; above 8 there is barely any boost left."
+                }
+            ],
+            "callout": "Drag <b>m</b> down and watch the peak rise past the required-gain line. Then look at what happens to L<sub>m</sub> — you have just bought gain range with circulating current."
         },
         {
-          "label": "What to specify",
-          "tone": "gain",
-          "items": [
-            "<b>Film, not class 2 ceramic.</b> X7R loses a large fraction of its capacitance under DC bias",
-            "Tolerance tight enough that f<sub>r</sub> stays inside your control range",
-            "Ripple current rating checked at f<sub>r</sub>, not at 120 Hz",
-            "Consider splitting into two caps to halve the rms current per part"
-          ]
-        }
-      ],
-      "callout": "A capacitance error goes into f<sub>r</sub> as its <b>square root</b>, so a 10% capacitance shift moves the resonant frequency about 5%. Tolerable. A 40% bias-induced loss is not."
-    },
-    {
-      "id": "magnetics",
-      "type": "parallel",
-      "ref": "V02-S09",
-      "eyebrow": "The other hard part",
-      "title": "The transformer is where<br>your design <span class=\"hl\">actually lives</span>",
-      "titleSize": 38,
-      "lead": "In most LLC builds Lr is the transformer leakage and Lm is its magnetising inductance, which means two of your three tank values are set by winding geometry and a gap, not by a purchase order.",
-      "columns": [
-        {
-          "label": "Integrated magnetics",
-          "tone": "gain",
-          "items": [
-            "One component instead of two, smaller and cheaper",
-            "Leakage becomes a designed quantity via winding separation",
-            "L<sub>m</sub> set by the gap, tunable during prototyping",
-            "Standard approach in high-volume production"
-          ]
+            "id": "solve-tank",
+            "type": "equations",
+            "ref": "V02-S05",
+            "eyebrow": "Step 4",
+            "title": "Now the tank falls out<br>in <span class=\"hl\">three lines</span>",
+            "titleSize": 40,
+            "lead": "With fr, m and Q settled, there is nothing left to decide. The resonant components are determined, and the only remaining question is whether the resulting Lm survives the ZVS check on the next slide.",
+            "formulas": [
+                {
+                    "label": "The series pair",
+                    "expression": "L<sub>r</sub> = Q·R<sub>ac</sub> / 2πf<sub>r</sub><br>C<sub>r</sub> = 1 / 2πf<sub>r</sub>Q·R<sub>ac</sub>",
+                    "note": "Two equations, two unknowns: Q fixes the ratio √(Lr/Cr), fr fixes the product LrCr. Together they pin both values exactly."
+                },
+                {
+                    "label": "The magnetising inductance",
+                    "expression": "L<sub>m</sub> = (<span class=\"hl\">m</span> − 1) · L<sub>r</sub>",
+                    "note": "A provisional value only. It is the gain curve's opinion of Lm, and the dead time may well overrule it."
+                }
+            ],
+            "points": [
+                {
+                    "text": "<b>Round to real parts, then recompute.</b> C<sub>r</sub> comes in E12 values and f<sub>r</sub> moves when you round it. Recalculate f<sub>r</sub> from the parts you can actually buy, not the other way round.",
+                    "tone": "ready"
+                },
+                {
+                    "text": "<b>L<sub>r</sub> is often the transformer leakage.</b> If you are integrating it, this number is a winding-construction target, not a component you order."
+                }
+            ],
+            "callout": "Everything to this point came from the gain curve alone. The gain curve does not know about your FETs, and that is the subject of the next slide."
         },
         {
-          "label": "What it costs you",
-          "tone": "cost",
-          "items": [
-            "Leakage tolerance is wide and varies with construction",
-            "Any winding change is a resonant frequency change",
-            "Interleaving reduces AC resistance but also reduces the L<sub>r</sub> you need",
-            "A discrete L<sub>r</sub> is bigger and dearer, but it is a number you can trust"
-          ]
-        }
-      ],
-      "callout": "Prototype with a <b>discrete inductor</b> so the tank is known, then integrate once the design is proven. Debugging a resonant frequency you cannot measure independently is a bad way to spend a week."
-    },
-    {
-      "id": "worked-spec",
-      "type": "equations",
-      "ref": "V02-S10",
-      "eyebrow": "Worked example",
-      "title": "390 V bus,<br>48 V at <span class=\"hl\">300 W</span>",
-      "titleSize": 42,
-      "lead": "A telecom-style rectifier stage. The PFC holds 390 V nominal and is allowed to droop to 330 V during hold-up, with the output staying in regulation throughout. Everything below follows from those numbers.",
-      "formulas": [
-        {
-          "label": "Turns ratio",
-          "expression": "n = 195 / 48 = <span class=\"hl\">4.06</span>",
-          "note": "Gain is 1 at the nominal bus, so the converter sits at fr whenever the line is healthy. Rectifier drop ignored here; with synchronous rectification that is defensible."
+            "id": "zvs-check",
+            "type": "split",
+            "ref": "V02-S06",
+            "eyebrow": "Step 5",
+            "title": "Check L<sub>m</sub> against<br>the <span class=\"hl\">dead time</span>",
+            "titleSize": 38,
+            "leftFlex": 1.45,
+            "rightFlex": 0.8,
+            "widget": "llc-resonant-converter/tank-designer",
+            "widgetTitle": "Interactive LLC tank designer — ZVS check",
+            "points": [
+                {
+                    "text": "<b>L<sub>m</sub> ≤ t<sub>dead</sub> / (16·C<sub>o(tr)</sub>·f<sub>r</sub>).</b> If the provisional L<sub>m</sub> exceeds this, ZVS does not happen and no amount of gain-curve tuning fixes it."
+                },
+                {
+                    "text": "<b>Three ways out.</b> Lengthen t<sub>dead</sub>, choose a FET with less output charge, or reduce m — in that order of preference, because the third one costs efficiency everywhere."
+                },
+                {
+                    "text": "<b>C<sub>o(tr)</sub>, not datasheet C<sub>oss</sub>.</b> Use the charge-equivalent value across the full V<sub>ds</sub> swing. The spot capacitance at rated voltage will flatter the design by a wide margin.",
+                    "tone": "fault"
+                },
+                {
+                    "text": "<b>Longer dead time is not free.</b> It eats conduction window and narrows the achievable gain at the frequency extremes."
+                }
+            ],
+            "callout": "Drag <b>C<sub>o(tr)</sub></b> up toward 600 pF and watch the ceiling collapse below the L<sub>m</sub> you wanted. That collision is why FET selection belongs in the tank design, not after it."
         },
         {
-          "label": "Gain at the hold-up corner",
-          "expression": "M = 195 / 165 = <span class=\"hl\">1.18</span>",
-          "note": "An 18% boost requirement. Modest, which is what a well-regulated bus buys you — a universal-input design would be asking for far more."
-        }
-      ],
-      "points": [
-        { "text": "<b>Choose f<sub>r</sub> = 100 kHz.</b> Comfortable for silicon superjunction FETs and ferrite, and it keeps the magnetics at a size that fits the enclosure." },
-        { "text": "<b>Choose m = 6, Q = 0.4.</b> Peak gain works out at 1.39 against the 1.18 required — a 17% margin, right in the recommended band.", "tone": "ready" },
-        { "text": "<b>R<sub>ac</sub> = 8n²V<sub>out</sub>²/π²P<sub>out</sub> = 103 Ω.</b> This is the load as the tank sees it, and it is what turns the chosen Q into real component values." }
-      ],
-      "callout": "Note the order. Nothing was solved for until <b>f<sub>r</sub>, m and Q</b> were chosen, and each of those was a judgement call bounded by a constraint — not a calculation."
-    },
-    {
-      "id": "worked-result",
-      "type": "split",
-      "ref": "V02-S11",
-      "eyebrow": "Worked example",
-      "title": "The tank, and the parts<br>it <span class=\"hl\">demands</span>",
-      "titleSize": 38,
-      "leftFlex": 1.45,
-      "rightFlex": 0.8,
-      "widget": "llc-resonant-converter/tank-designer",
-      "widgetTitle": "Interactive LLC tank designer — worked example",
-      "points": [
-        { "text": "<b>L<sub>r</sub> = 65 µH, C<sub>r</sub> = 39 nF, L<sub>m</sub> = 327 µH.</b> Round C<sub>r</sub> to 39 nF exactly, then recompute f<sub>r</sub> from the parts you can buy." },
-        { "text": "<b>I<sub>Lr</sub> = 1.9 A rms</b> at full load, of which roughly 0.9 A is magnetising current that never reaches the output. That is the ZVS fee made numeric." },
-        { "text": "<b>V<sub>Cr</sub> peak ≈ 306 V.</b> Specify a 630 V film capacitor. The 390 V rail is not the rating that matters.", "tone": "fault" },
-        { "text": "<b>ZVS check.</b> At 200 ns dead time and 120 pF C<sub>o(tr)</sub> the ceiling is about 1.0 mH, so the 327 µH L<sub>m</sub> passes with room. A high-charge FET would not.", "tone": "ready" }
-      ],
-      "callout": "The widget is loaded with exactly this example. Change one slider at a time and watch which of the four results moves — that coupling <i>is</i> the design."
-    },
-    {
-      "id": "before-you-build",
-      "type": "parallel",
-      "ref": "V02-S12",
-      "eyebrow": "Before you build",
-      "title": "What the spreadsheet<br><span class=\"hl\">has not checked</span>",
-      "titleSize": 40,
-      "lead": "FHA sized the tank at one operating point. The corners it never looked at are where prototypes fail, and every item below has to be verified in simulation before a board is fabricated.",
-      "columns": [
-        {
-          "label": "Simulate these corners",
-          "tone": "cost",
-          "items": [
-            "<b>Start-up.</b> Output at zero demands enormous gain; sweep the frequency down from well above f<sub>r</sub>",
-            "<b>No load.</b> The light-load curve peaks hard and frequency control runs out of range; burst mode is the usual answer",
-            "<b>Output short.</b> The loop chases gain downward into the capacitive region",
-            "<b>Hold-up droop with a step load</b> applied at the same moment"
-          ]
+            "id": "stresses",
+            "type": "split",
+            "ref": "V02-S07",
+            "eyebrow": "Step 6",
+            "title": "The numbers you actually<br><span class=\"hl\">order parts</span> from",
+            "titleSize": 38,
+            "leftFlex": 1.45,
+            "rightFlex": 0.8,
+            "widget": "llc-resonant-converter/tank-designer",
+            "widgetTitle": "Interactive LLC tank designer — stresses",
+            "points": [
+                {
+                    "text": "<b>I<sub>Lr</sub> rms</b> sizes the primary FET conduction loss, the resonant inductor wire, and the primary winding. It combines the reflected load current with the magnetising current."
+                },
+                {
+                    "text": "<b>V<sub>Cr</sub> peak</b> is the DC blocking level plus the AC swing across C<sub>r</sub>. It routinely lands two to three times the rail — this is why C<sub>r</sub> is a 630 V part in a 390 V converter.",
+                    "tone": "fault"
+                },
+                {
+                    "text": "<b>I<sub>sec</sub> rms</b> sizes the rectifier and the secondary winding, where the current is large and the copper is short and fat."
+                },
+                {
+                    "text": "<b>These are FHA estimates at f<sub>r</sub>.</b> Good enough to select parts and set a thermal budget. Not good enough to skip the simulation."
+                }
+            ],
+            "callout": "A design is not finished when L<sub>r</sub>, C<sub>r</sub> and L<sub>m</sub> exist. It is finished when every part in the loop has a rating with margin against these numbers at the worst corner."
         },
         {
-          "label": "Then check the hardware",
-          "tone": "cost",
-          "items": [
-            "<b>Minimum frequency clamp</b> present and set below f<sub>min</sub> but above the peak locus",
-            "<b>Measured L<sub>r</sub> and L<sub>m</sub></b> on the built transformer, not the design values",
-            "<b>C<sub>r</sub> capacitance at operating bias and temperature</b>, not at 1 kHz on the bench",
-            "<b>V<sub>ds</sub> at turn-on</b> observed at light load and high line, the hardest ZVS corner"
-          ]
-        }
-      ],
-      "callout": "The most common production failure is not a mistuned tank. It is a <b>controller with no low-frequency clamp</b> meeting a transient nobody simulated."
-    },
-    {
-      "id": "close",
-      "type": "equations",
-      "ref": "V02-S13",
-      "eyebrow": "Confused to competent",
-      "title": "The procedure, in order",
-      "titleSize": 44,
-      "lead": "Six steps, two of which are judgement calls and four of which are arithmetic. Knowing which is which is the difference between designing an LLC and copying one.",
-      "formulas": [
-        {
-          "label": "The two judgement calls",
-          "expression": "choose <span class=\"hl\">f<sub>r</sub></span>, then <span class=\"hl\">m</span>",
-          "note": "fr trades magnetics size against switching loss. m trades gain range against circulating current. Everything else is bounded by them."
+            "id": "resonant-cap",
+            "type": "parallel",
+            "ref": "V02-S08",
+            "eyebrow": "The part people get wrong",
+            "title": "C<sub>r</sub> is a resonant component,<br>not a <span class=\"hl\">decoupling cap</span>",
+            "titleSize": 38,
+            "lead": "It carries the full resonant current continuously, sets fr directly, and sees a peak voltage far above the rail. Substituting the wrong dielectric here changes the converter's resonant frequency in the field, as a function of temperature and bias.",
+            "columns": [
+                {
+                    "label": "What it must survive",
+                    "tone": "cost",
+                    "items": [
+                        "Peak voltage of roughly V<sub>in</sub>/2 plus the AC swing",
+                        "Continuous rms current equal to the tank current",
+                        "Self-heating from ESR at the switching frequency",
+                        "Whatever the overload transient does before the clamp acts"
+                    ]
+                },
+                {
+                    "label": "What to specify",
+                    "tone": "gain",
+                    "items": [
+                        "<b>Film, not class 2 ceramic.</b> X7R loses a large fraction of its capacitance under DC bias",
+                        "Tolerance tight enough that f<sub>r</sub> stays inside your control range",
+                        "Ripple current rating checked at f<sub>r</sub>, not at 120 Hz",
+                        "Consider splitting into two caps to halve the rms current per part"
+                    ]
+                }
+            ],
+            "callout": "A capacitance error goes into f<sub>r</sub> as its <b>square root</b>, so a 10% capacitance shift moves the resonant frequency about 5%. Tolerable. A 40% bias-induced loss is not."
         },
         {
-          "label": "The binding check",
-          "expression": "L<sub>m</sub> ≤ t<sub>dead</sub> / (16·C<sub>o(tr)</sub>·f<sub>r</sub>)",
-          "note": "The gain curve proposes an Lm. The dead time disposes of it. When they disagree, the dead time wins."
+            "id": "magnetics",
+            "type": "parallel",
+            "ref": "V02-S09",
+            "eyebrow": "The other hard part",
+            "title": "The transformer is where<br>your design <span class=\"hl\">actually lives</span>",
+            "titleSize": 38,
+            "lead": "In most LLC builds Lr is the transformer leakage and Lm is its magnetising inductance, which means two of your three tank values are set by winding geometry and a gap, not by a purchase order.",
+            "columns": [
+                {
+                    "label": "Integrated magnetics",
+                    "tone": "gain",
+                    "items": [
+                        "One component instead of two, smaller and cheaper",
+                        "Leakage becomes a designed quantity via winding separation",
+                        "L<sub>m</sub> set by the gap, tunable during prototyping",
+                        "Standard approach in high-volume production"
+                    ]
+                },
+                {
+                    "label": "What it costs you",
+                    "tone": "cost",
+                    "items": [
+                        "Leakage tolerance is wide and varies with construction",
+                        "Any winding change is a resonant frequency change",
+                        "Interleaving reduces AC resistance but also reduces the L<sub>r</sub> you need",
+                        "A discrete L<sub>r</sub> is bigger and dearer, but it is a number you can trust"
+                    ]
+                }
+            ],
+            "callout": "Prototype with a <b>discrete inductor</b> so the tank is known, then integrate once the design is proven. Debugging a resonant frequency you cannot measure independently is a bad way to spend a week."
+        },
+        {
+            "id": "worked-spec",
+            "type": "equations",
+            "ref": "V02-S10",
+            "eyebrow": "Worked example",
+            "title": "390 V bus,<br>48 V at <span class=\"hl\">300 W</span>",
+            "titleSize": 42,
+            "lead": "A telecom-style rectifier stage. The PFC holds 390 V nominal and is allowed to droop to 330 V during hold-up, with the output staying in regulation throughout. Everything below follows from those numbers.",
+            "formulas": [
+                {
+                    "label": "Turns ratio",
+                    "expression": "n = 195 / 48 = <span class=\"hl\">4.06</span>",
+                    "note": "Gain is 1 at the nominal bus, so the converter sits at fr whenever the line is healthy. Rectifier drop ignored here; with synchronous rectification that is defensible."
+                },
+                {
+                    "label": "Gain at the hold-up corner",
+                    "expression": "M = 195 / 165 = <span class=\"hl\">1.18</span>",
+                    "note": "An 18% boost requirement. Modest, which is what a well-regulated bus buys you — a universal-input design would be asking for far more."
+                }
+            ],
+            "points": [
+                {
+                    "text": "<b>Choose f<sub>r</sub> = 100 kHz.</b> Comfortable for silicon superjunction FETs and ferrite, and it keeps the magnetics at a size that fits the enclosure."
+                },
+                {
+                    "text": "<b>Choose m = 6, Q = 0.4.</b> Peak gain works out at 1.39 against the 1.18 required — a 17% margin, right in the recommended band.",
+                    "tone": "ready"
+                },
+                {
+                    "text": "<b>R<sub>ac</sub> = 8n²V<sub>out</sub>²/π²P<sub>out</sub> = 103 Ω.</b> This is the load as the tank sees it, and it is what turns the chosen Q into real component values."
+                }
+            ],
+            "callout": "Note the order. Nothing was solved for until <b>f<sub>r</sub>, m and Q</b> were chosen, and each of those was a judgement call bounded by a constraint — not a calculation."
+        },
+        {
+            "id": "worked-result",
+            "type": "split",
+            "ref": "V02-S11",
+            "eyebrow": "Worked example",
+            "title": "The tank, and the parts<br>it <span class=\"hl\">demands</span>",
+            "titleSize": 38,
+            "leftFlex": 1.45,
+            "rightFlex": 0.8,
+            "widget": "llc-resonant-converter/tank-designer",
+            "widgetTitle": "Interactive LLC tank designer — worked example",
+            "points": [
+                {
+                    "text": "<b>L<sub>r</sub> = 65 µH, C<sub>r</sub> = 39 nF, L<sub>m</sub> = 327 µH.</b> Round C<sub>r</sub> to 39 nF exactly, then recompute f<sub>r</sub> from the parts you can buy."
+                },
+                {
+                    "text": "<b>I<sub>Lr</sub> = 1.9 A rms</b> at full load, of which roughly 0.9 A is magnetising current that never reaches the output. That is the ZVS fee made numeric."
+                },
+                {
+                    "text": "<b>V<sub>Cr</sub> peak ≈ 306 V.</b> Specify a 630 V film capacitor. The 390 V rail is not the rating that matters.",
+                    "tone": "fault"
+                },
+                {
+                    "text": "<b>ZVS check.</b> At 200 ns dead time and 120 pF C<sub>o(tr)</sub> the ceiling is about 1.0 mH, so the 327 µH L<sub>m</sub> passes with room. A high-charge FET would not.",
+                    "tone": "ready"
+                }
+            ],
+            "callout": "The widget is loaded with exactly this example. Change one slider at a time and watch which of the four results moves — that coupling <i>is</i> the design."
+        },
+        {
+            "id": "before-you-build",
+            "type": "parallel",
+            "ref": "V02-S12",
+            "eyebrow": "Before you build",
+            "title": "What the spreadsheet<br><span class=\"hl\">has not checked</span>",
+            "titleSize": 40,
+            "lead": "FHA sized the tank at one operating point. The corners it never looked at are where prototypes fail, and every item below has to be verified in simulation before a board is fabricated.",
+            "columns": [
+                {
+                    "label": "Simulate these corners",
+                    "tone": "cost",
+                    "items": [
+                        "<b>Start-up.</b> Output at zero demands enormous gain; sweep the frequency down from well above f<sub>r</sub>",
+                        "<b>No load.</b> The light-load curve peaks hard and frequency control runs out of range; burst mode is the usual answer",
+                        "<b>Output short.</b> The loop chases gain downward into the capacitive region",
+                        "<b>Hold-up droop with a step load</b> applied at the same moment"
+                    ]
+                },
+                {
+                    "label": "Then check the hardware",
+                    "tone": "cost",
+                    "items": [
+                        "<b>Minimum frequency clamp</b> present and set below f<sub>min</sub> but above the peak locus",
+                        "<b>Measured L<sub>r</sub> and L<sub>m</sub></b> on the built transformer, not the design values",
+                        "<b>C<sub>r</sub> capacitance at operating bias and temperature</b>, not at 1 kHz on the bench",
+                        "<b>V<sub>ds</sub> at turn-on</b> observed at light load and high line, the hardest ZVS corner"
+                    ]
+                }
+            ],
+            "callout": "The most common production failure is not a mistuned tank. It is a <b>controller with no low-frequency clamp</b> meeting a transient nobody simulated."
+        },
+        {
+            "id": "close",
+            "type": "equations",
+            "ref": "V02-S13",
+            "eyebrow": "Confused to competent",
+            "title": "The procedure, in order",
+            "titleSize": 44,
+            "lead": "Six steps, two of which are judgement calls and four of which are arithmetic. Knowing which is which is the difference between designing an LLC and copying one.",
+            "formulas": [
+                {
+                    "label": "The two judgement calls",
+                    "expression": "choose <span class=\"hl\">f<sub>r</sub></span>, then <span class=\"hl\">m</span>",
+                    "note": "fr trades magnetics size against switching loss. m trades gain range against circulating current. Everything else is bounded by them."
+                },
+                {
+                    "label": "The binding check",
+                    "expression": "L<sub>m</sub> ≤ t<sub>dead</sub> / (16·C<sub>o(tr)</sub>·f<sub>r</sub>)",
+                    "note": "The gain curve proposes an Lm. The dead time disposes of it. When they disagree, the dead time wins."
+                }
+            ],
+            "points": [
+                {
+                    "text": "<b>n from the nominal bus, M from the worst corner.</b> Design at full load and low line; every other point is easier.",
+                    "tone": "ready"
+                },
+                {
+                    "text": "<b>Q is a constraint, not a knob.</b> You choose √(L<sub>r</sub>/C<sub>r</sub>); the load chooses Q.",
+                    "tone": "ready"
+                },
+                {
+                    "text": "<b>Finish with stresses.</b> A tank without ratings is not a design.",
+                    "tone": "ready"
+                }
+            ],
+            "callout": "Next: put your own specification through the <b>LLC tank designer</b>, then take the result to a simulator before you take it to a fab."
         }
-      ],
-      "points": [
-        { "text": "<b>n from the nominal bus, M from the worst corner.</b> Design at full load and low line; every other point is easier.", "tone": "ready" },
-        { "text": "<b>Q is a constraint, not a knob.</b> You choose √(L<sub>r</sub>/C<sub>r</sub>); the load chooses Q.", "tone": "ready" },
-        { "text": "<b>Finish with stresses.</b> A tank without ratings is not a design.", "tone": "ready" }
-      ],
-      "callout": "Next: put your own specification through the <b>LLC tank designer</b>, then take the result to a simulator before you take it to a fab."
-    }
-  ]
+    ]
 }
