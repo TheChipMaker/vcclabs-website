@@ -2,7 +2,7 @@
   "title": "The LLC Resonant Converter",
   "subject": "Power Electronics",
   "level": "advanced",
-  "minutes": 17,
+  "minutes": 19,
   "blurb": "Why half-bridge LLC exists, what the tank actually does, and how to read the gain curve without guessing.",
   "prerequisites": [
     "Buck and boost converter operation",
@@ -313,12 +313,39 @@
         { "text": "<b>Smaller Lm means more of it</b>, so more ZVS margin and worse efficiency. Larger Lm is the reverse." },
         { "text": "<b>Light load is the hard case.</b> Drop the load slider and watch the useful current shrink while the circulating current stays put." }
       ],
-      "callout": "This is why <b>m</b> from slide 9 and the ZVS window from slide 2 are the same conversation. Choosing m is choosing how much you overpay for soft switching at every operating point."
+            "callout": "This is why <b>m</b> from slide 9 and the ZVS window from slide 2 are the same conversation. Choosing m is choosing how much you overpay for soft switching at every operating point."
     },
+    {
+      "id": "zvs-constraint",
+      "type": "equations",
+      "ref": "V01-S14",
+      "eyebrow": "The second constraint",
+      "title": "L<sub>m</sub> is fixed <span class=\"hl\">twice</span>,<br>and the smaller number wins",
+      "titleSize": 40,
+      "lead": "The gain curve gives you one value of Lm through m. The dead time gives you a completely independent ceiling. Nothing guarantees they agree, and the deck so far has only shown you the first one.",
+      "formulas": [
         {
+          "label": "From the gain requirement",
+          "expression": "L<sub>m</sub> = (<span class=\"hl\">m</span> − 1) · L<sub>r</sub>",
+          "note": "m came from the boost you need at low line. This is the value that makes the gain curve reach."
+        },
+        {
+          "label": "From the ZVS requirement",
+          "expression": "L<sub>m</sub> ≤ t<sub>dead</sub> / (16 · C<sub>o(tr)</sub> · f<sub>r</sub>)",
+          "note": "The magnetising current has to swing the half-bridge node across the full bus inside the dead time. Larger Lm means less current to do it with."
+        }
+      ],
+      "points": [
+        { "text": "<b>Take the smaller.</b> If the ZVS ceiling is below the gain value, you cannot have the m you wanted — raise f<sub>r</sub>, lengthen t<sub>dead</sub>, or pick a FET with less charge.", "tone": "ready" },
+        { "text": "<b>C<sub>o(tr)</sub> is not the C<sub>oss</sub> on the front page.</b> It is the time-related equivalent, derived from the output charge Q<sub>oss</sub> integrated across the full V<sub>ds</sub> swing. Using the spot value at 400 V will flatter your design badly." },
+        { "text": "<b>Worst case is light load at high line.</b> Least magnetising current, largest swing to make. If ZVS holds there it holds everywhere.", "tone": "fault" }
+      ],
+      "callout": "Two FETs, a quarter of a resonant period, and the C<sub>oss</sub> of both devices are what produce the <b>16</b>. Treat it as a sizing bound, not a precision result — it assumes the magnetising current stays flat through the transition, which it does not quite."
+    },
+    {
       "id": "design-variables",
       "type": "parallel",
-      "ref": "V01-S14",
+      "ref": "V01-S15",
       "eyebrow": "The design space",
       "title": "Three numbers, and every one<br>of them <span class=\"hl\">fights the others</span>",
       "titleSize": 38,
@@ -350,7 +377,7 @@
     {
       "id": "procedure",
       "type": "split",
-      "ref": "V01-S15",
+      "ref": "V01-S16",
       "eyebrow": "The procedure",
       "title": "From a spec sheet<br>to L<sub>r</sub>, C<sub>r</sub> and L<sub>m</sub>",
       "titleSize": 38,
@@ -369,7 +396,7 @@
     {
       "id": "practice",
       "type": "parallel",
-      "ref": "V01-S16",
+      "ref": "V01-S17",
       "eyebrow": "In practice",
       "title": "What the equations<br><span class=\"hl\">do not tell you</span>",
       "titleSize": 40,
@@ -381,7 +408,7 @@
           "items": [
             "<b>Startup.</b> Output is at zero, so demanded gain is enormous. Soft-start by sweeping frequency down from well above f<sub>r</sub>.",
             "<b>No-load regulation.</b> The light-load curve peaks so hard that frequency control runs out of range. Burst mode is the usual answer.",
-            "<b>Dead time versus L<sub>m</sub>.</b> These are one constraint, not two — the magnetising current has to discharge C<sub>oss</sub> inside the dead time."
+            "<b>Dead time versus L<sub>m</sub>.</b> Slide 14 gives the bound. What it does not give you is the dead time itself — too long and you lose conduction window and gain range, too short and ZVS collapses at light load."
           ]
         },
         {
@@ -399,7 +426,7 @@
     {
       "id": "close",
       "type": "equations",
-      "ref": "V01-S17",
+      "ref": "V01-S18",
       "eyebrow": "Confused to competent",
       "title": "What you now know",
       "titleSize": 44,
