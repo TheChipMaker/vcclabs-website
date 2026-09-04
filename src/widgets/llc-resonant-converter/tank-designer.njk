@@ -71,6 +71,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
     <div class="res"><span class="k">M needed</span><span class="v" id="mneed">—</span></div>
     <div class="res"><span class="k">I<sub>Lr</sub> rms</span><span class="v" id="ilr">—</span></div>
     <div class="res"><span class="k">V<sub>Cr</sub> peak</span><span class="v" id="vcr">—</span></div>
+    <div class="note">V<sub>Cr</sub> includes the V<sub>in</sub>/2 blocking level. Some app notes quote the AC swing alone — rate the part against this figure, not that one.</div>
     <div class="res"><span class="k">I<sub>sec</sub> rms</span><span class="v" id="isec">—</span></div>
     <div class="res"><span class="k">L<sub>m</sub> max (ZVS)</span><span class="v" id="lmmax">—</span></div>
     <div class="verdict" id="verdict">—</div>
@@ -79,6 +80,10 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
 </div>
 
 <div class="ctl">
+  <div class="sld">
+    <div class="top"><span class="nm">V<sub>in</sub> nominal</span><span class="rd" id="vnomrd">390 V</span></div>
+    <input type="range" id="vnom" min="300" max="450" step="5" value="390">
+  </div>
   <div class="sld">
     <div class="top"><span class="nm">V<sub>in</sub> min</span><span class="rd" id="vminrd">330 V</span></div>
     <input type="range" id="vmin" min="250" max="390" step="5" value="330">
@@ -120,7 +125,7 @@ input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;bac
    Q   = sqrt(Lr/Cr) / Rac   ->  Lr = Q Rac / (2 pi fr),  Cr = 1/(2 pi fr Q Rac)
    Lm  = (m - 1) Lr                                                          */
 
-var VNOM = 390;
+var VNOM = 390; /* overwritten from the slider on every render */
 
 function gain(fn, m, Q) {
   var a = fn * fn * (m - 1);
@@ -155,6 +160,8 @@ function path(m, Q) {
 
 function render() {
   var vmin = +$("vmin").value, pout = +$("pout").value, fr = +$("fr").value * 1e3;
+  VNOM = +$("vnom").value;
+  $("vnomrd").textContent = VNOM + " V";
   var m = +$("m").value, Q = +$("q").value, vout = +$("vout").value;
 
   $("vminrd").textContent = vmin + " V";
@@ -202,7 +209,9 @@ function render() {
 
   var td = +$("td").value * 1e-9;
   var cotr = +$("cotr").value * 1e-12;
-  var LmMax = td / (16 * cotr * fr);
+  /* Worst case for ZVS is the highest switching frequency, which is start-up.
+     Published procedures evaluate the ceiling at roughly 3x fr for this reason. */
+  var LmMax = td / (16 * cotr * 3 * fr);
 
   $("tdrd").textContent = (td * 1e9).toFixed(0) + " ns";
   $("cordrd").textContent = (cotr * 1e12).toFixed(0) + " pF";
@@ -261,7 +270,7 @@ function render() {
   plot.innerHTML = s;
 }
 
-["vmin", "pout", "fr", "m", "q", "vout", "td", "cotr"].forEach(function (id) {
+["vnom", "vmin", "pout", "fr", "m", "q", "vout", "td", "cotr"].forEach(function (id) {
   $(id).addEventListener("input", render);
 });
 render();
