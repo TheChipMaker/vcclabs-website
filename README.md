@@ -37,18 +37,18 @@ Order is deliberate — power electronics first because it is where the existing
 
 Later, once the format is proven: computer engineering, mechatronics, mechanical engineering.
 
-> **Open item:** volt 01 is LLC resonant conversion, which is a senior-elective-to-practitioner topic, not undergraduate material. It was built first because that is where the domain depth is, and it serves working engineers well. It should be labelled **advanced** and should not carry the "confused to competent" undergraduate pitch on its own — a buck converter volt is still needed for that.
+> **Open item:** volts 01 and 02 are LLC resonant conversion, a senior-elective-to-practitioner topic rather than undergraduate material. Built first because that is where the domain depth is, and they serve working engineers well — which also makes them the right pair to show an institutional buyer. Both are labelled **advanced**. Neither can carry the "confused to competent" undergraduate pitch on its own; a buck converter volt is still needed for that.
 
 ---
 
 ## 3. Naming
 
-| Term | Meaning |
-| --- | --- |
-| **Volt** | One self-contained interactive lesson. The unit of product. |
-| **Calculator** | A standalone free tool, usually SEO-driven. |
-| **Widget** | An interactive figure embedded in a volt slide. |
-| **Pro pass** | The paid tier that unlocks the full volt library. |
+| Term           | Meaning                                                     |
+| -------------- | ----------------------------------------------------------- |
+| **Volt**       | One self-contained interactive lesson. The unit of product. |
+| **Calculator** | A standalone free tool, usually SEO-driven.                 |
+| **Widget**     | An interactive figure embedded in a volt slide.             |
+| **Pro pass**   | The paid tier that unlocks the full volt library.           |
 
 The word "deck" is retired as a product term. Routes are `/volts/<slug>/`, content lives in `src/_data/voltdata/`, widgets at `/widgets/<name>/`.
 
@@ -69,12 +69,12 @@ A volt is a **full-viewport slide deck**, not a scrolling page. It renders on a 
 
 Set by the `type` key in the volt JSON. Adding a type means adding a branch in `src/volts/volt.njk` — do that reluctantly, because every type is a thing that must be maintained forever.
 
-| Type | Shape |
-| --- | --- |
-| `cover` | Title slide with the series label and glow. |
-| `parallel` | Two labelled columns, usually a benefit/cost or cause/effect pair. |
-| `split` | Figure or widget on one side, numbered points and a callout on the other. |
-| `equations` | Two formula blocks side by side, each with a note, plus optional points. |
+| Type        | Shape                                                                     |
+| ----------- | ------------------------------------------------------------------------- |
+| `cover`     | Title slide with the series label and glow.                               |
+| `parallel`  | Two labelled columns, usually a benefit/cost or cause/effect pair.        |
+| `split`     | Figure or widget on one side, numbered points and a callout on the other. |
+| `equations` | Two formula blocks side by side, each with a note, plus optional points.  |
 
 Shared optional keys on every type: `eyebrow`, `title` (accepts HTML, use `<span class="hl">` for the accent), `titleSize`, `lead`, `points`, `callout`, `ref`, `surface`.
 
@@ -119,15 +119,22 @@ To add a widget: create `src/widgets/<volt-slug>/<name>.njk` — no front matter
 
 All under `src/widgets/llc-resonant-converter/`.
 
-| Name | Model | Used on |
-| --- | --- | --- |
-| `zvs-explorer` | Illustrative — constant-current Coss discharge | S02 |
-| `gain-curve` | **Real** — FHA gain equation | S07, S08, S09 |
-| `regions` | **Real** — same equation, region shading, animated sweep | S10 |
-| `waveforms` | Illustrative — qualitative shapes, normalised "pu" values | S12, S13 |
-| `tank-designer` | **Real** — full FHA design equations | S15 |
+| Name            | Model                                                                                                      | Used on                      |
+| --------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `zvs-explorer`  | Illustrative — constant-current Coss discharge                                                             | S02                          |
+| `gain-curve`    | **Real** — FHA gain equation                                                                               | S07, S08, S09                |
+| `regions`       | **Real** — same equation, capacitive boundary computed as the peak-gain locus, load slider, animated sweep | S10                          |
+| `waveforms`     | Illustrative — qualitative shapes, normalised "pu" values                                                  | S12, S13                     |
+| `tank-designer` | **Real** — full FHA design equations, stresses, ZVS ceiling                                                | V01 S16, V02 S04/S06/S07/S11 |
 
-> **Open item:** `tank-designer` needs validation against a known-good build before it is promoted to the public calculator. Conventions used: half-bridge, `M = nV_out/(V_in/2)`, nominal bus hardcoded at 390 V, `m = (L_r+L_m)/L_r`. Both `m` conventions appear in the literature and differ by 1 — the whole volt uses this one.
+**Validated.** Checked against MPS's published 8-step worked design (400 V / 48 V / 600 W / 100 kHz, L_N = 9, Q_E = 0.35). R_ac, C_r, L_r, L_m and secondary rms current all agree to within rounding. Two deliberate divergences:
+
+- **Magnetising rms** uses `I_pk/√3` (triangular, as taught in V01-S12), not the `I_pk/√2` that FHA-sinusoidal references use. Reads ~2% low on `I_Lr` rms. Kept for internal consistency.
+- **V_Cr** includes the `V_in/2` blocking level and uses peak current. Several app notes publish the AC swing alone, which is not a component rating. Ours is the conservative and correct figure; the widget says so on screen.
+
+The ZVS ceiling is evaluated at the start-up corner (~3× f_r), not f_r, because that is where the frequency is highest and ZVS hardest.
+
+Conventions: half-bridge, `M = nV_out/(V_in/2)`, `m = (L_r+L_m)/L_r`. Both `m` conventions appear in the literature and differ by 1 — both volts use this one. Nominal bus is now a slider, not hardcoded.
 
 ---
 
@@ -157,14 +164,14 @@ Derived from an existing house system and kept deliberately compatible with it.
 
 **Green is both the signature and the "ready" semantic** — one token, two jobs, never split. Green means ready, correct, or safe. It is never decoration and never a category colour. When something is *clickable* — a different idea from *good* — it uses Signal blue, so interactivity never competes with the go-signal.
 
-| Token | Value | Meaning |
-| --- | --- | --- |
-| `--ready` / `--brand` | `#15B86A` | Ready, correct, success, brand |
-| `--ready-bright` | `#2BD27D` | The same, on dark surfaces |
-| `--ready-deep` | `#0C7A48` | Legible green text on light |
-| `--signal` | `#2C66EA` | Interactive, clickable, informational |
-| `--fault` | `#EF4444` | Fault, danger, stop, destructive |
-| `--warn` | `#F5C542` | Caution, derate, waiting |
+| Token                 | Value     | Meaning                               |
+| --------------------- | --------- | ------------------------------------- |
+| `--ready` / `--brand` | `#15B86A` | Ready, correct, success, brand        |
+| `--ready-bright`      | `#2BD27D` | The same, on dark surfaces            |
+| `--ready-deep`        | `#0C7A48` | Legible green text on light           |
+| `--signal`            | `#2C66EA` | Interactive, clickable, informational |
+| `--fault`             | `#EF4444` | Fault, danger, stop, destructive      |
+| `--warn`              | `#F5C542` | Caution, derate, waiting              |
 
 Neutrals: Ink `#0E1116`, Ink-2 `#161A20`, Ink-3 `#1F242C`, line-dark `#242A32`; Paper `#FFFFFF`, off `#F6F7F9`, line `#E7E9ED`; Slate `#59626E`, slate-dark `#8A94A1`, body `#374151`.
 
@@ -174,14 +181,14 @@ Dark sections use Ink `#0E1116`, never pure black.
 
 ### Typography
 
-| Role | Font | Weight / size |
-| --- | --- | --- |
-| Hero / H1 | Sora | 800, clamp 36–60px, 1.02 |
-| Slide title | Sora | 800, 38–46px, 1.08 |
-| H2 | Sora | 700, 30px |
-| Body | Inter | 400, 16px, 1.55 |
+| Role          | Font           | Weight / size                  |
+| ------------- | -------------- | ------------------------------ |
+| Hero / H1     | Sora           | 800, clamp 36–60px, 1.02       |
+| Slide title   | Sora           | 800, 38–46px, 1.08             |
+| H2            | Sora           | 700, 30px                      |
+| Body          | Inter          | 400, 16px, 1.55                |
 | Eyebrow / tag | JetBrains Mono | 500, 11–13px, uppercase, .12em |
-| Data / specs | JetBrains Mono | 400–500, 13–22px |
+| Data / specs  | JetBrains Mono | 400–500, 13–22px               |
 
 **Every measured value, formula, device ID and slide ref is set in JetBrains Mono.** This is not decorative — it is the signal that a number is exact.
 
@@ -291,7 +298,8 @@ Working directories vary by machine — the project syncs between a home and a w
 **Built**
 
 - Homepage with volt index
-- Volt 01: The LLC Resonant Converter — 18 slides, 5 interactive widgets
+- Volt 01: The LLC Resonant Converter — 19 slides, 5 interactive widgets
+- Volt 02: Designing an LLC Converter — 14 slides, reusing `tank-designer` across the volt boundary via the `<volt-slug>/<name>` path form
 - Deck engine: scaled stage, keyboard/swipe nav, full screen, thumbnail slide index, per-slide theme toggle
 - Brand system applied across site and deck
 
@@ -302,7 +310,7 @@ Working directories vary by machine — the project syncs between a home and a w
 **Next**
 
 - [ ] `/volts/` and `/tools/` index pages — the header links to both and neither exists, so they are 404s
-- [ ] Validate `llc-tank-designer` math against a known-good design
+- [ ] Second reviewer on the volt 02 stress equations before the calculator goes public
 - [ ] Promote it to a real calculator at `/tools/llc-tank-designer/` with numeric inputs and SEO copy
 - [ ] Decide the small-screen policy for the deck
 - [ ] A buck converter volt to carry the undergraduate pitch

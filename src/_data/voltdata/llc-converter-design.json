@@ -205,7 +205,7 @@
                     "text": "<b>Longer dead time is not free.</b> It eats conduction window and narrows the achievable gain at the frequency extremes."
                 }
             ],
-            "callout": "Drag <b>C<sub>o(tr)</sub></b> up toward 600 pF and watch the ceiling collapse below the L<sub>m</sub> you wanted. That collision is why FET selection belongs in the tank design, not after it."
+            "callout": "Nudge <b>C<sub>o(tr)</sub></b> up by a few tens of picofarads and the ceiling drops below the L<sub>m</sub> you wanted. The default design is only 6% clear of it — that is how narrow this constraint really is, and why FET selection belongs in the tank design rather than after it."
         },
         {
             "id": "stresses",
@@ -356,8 +356,8 @@
                     "tone": "fault"
                 },
                 {
-                    "text": "<b>ZVS check.</b> At 200 ns dead time and 120 pF C<sub>o(tr)</sub> the ceiling is about 1.0 mH, so the 327 µH L<sub>m</sub> passes with room. A high-charge FET would not.",
-                    "tone": "ready"
+                    "text": "<b>ZVS check.</b> Evaluated at start-up, the hardest corner, 200 ns and 120 pF give a ceiling near 347 µH against the 327 µH L<sub>m</sub> — a pass with only 6% headroom. Comfortable at f<sub>r</sub>, marginal where it matters.",
+                    "tone": "fault"
                 }
             ],
             "callout": "The widget is loaded with exactly this example. Change one slider at a time and watch which of the four results moves — that coupling <i>is</i> the design."
