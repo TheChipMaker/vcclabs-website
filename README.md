@@ -100,6 +100,8 @@ Interactive figures are **standalone HTML pages served at `/widgets/<name>/`, em
 
 Why: a widget is a self-contained app with its own CSS and script, and iframing it means a broken widget cannot break the deck. The cost is that widgets do not inherit the page theme — each carries its own dark palette.
 
+**Widgets are cloned into the index panel.** Opening the slide index renders live copies of every slide, iframes included, so a widget loads twice per session. `loading="lazy"` and `pointer-events: none` keep this cheap at five widgets. It will not stay cheap — a volt with a dozen widgets will make the index slow to open, and the fix at that point is snapshotting widgets to static images at build time rather than embedding them live.
+
 **Widgets and figures are namespaced by volt slug.** A volt's assets live in `src/widgets/<volt-slug>/` and `src/_includes/figures/<volt-slug>/`, so volts never collide and filenames stay short.
 
 To add a widget: create `src/widgets/<volt-slug>/<name>.njk` — no front matter needed, the permalink is derived from the file path by `src/widgets/widgets.11tydata.js`. Then set `"widget": "<name>"` on a `split` slide.
@@ -115,15 +117,17 @@ To add a widget: create `src/widgets/<volt-slug>/<name>.njk` — no front matter
 
 ### Current widgets
 
+All under `src/widgets/llc-resonant-converter/`.
+
 | Name | Model | Used on |
 | --- | --- | --- |
 | `zvs-explorer` | Illustrative — constant-current Coss discharge | S02 |
-| `llc-gain-curve` | **Real** — FHA gain equation | S07, S08, S09 |
-| `llc-regions` | **Real** — same equation, region shading, animated sweep | S10 |
-| `llc-waveforms` | Illustrative — qualitative shapes, normalised "pu" values | S12, S13 |
-| `llc-tank-designer` | **Real** — full FHA design equations | S15 |
+| `gain-curve` | **Real** — FHA gain equation | S07, S08, S09 |
+| `regions` | **Real** — same equation, region shading, animated sweep | S10 |
+| `waveforms` | Illustrative — qualitative shapes, normalised "pu" values | S12, S13 |
+| `tank-designer` | **Real** — full FHA design equations | S15 |
 
-> **Open item:** `llc-tank-designer` needs validation against a known-good build before it is promoted to the public calculator. Conventions used: half-bridge, `M = nV_out/(V_in/2)`, nominal bus hardcoded at 390 V, `m = (L_r+L_m)/L_r`. Both `m` conventions appear in the literature and differ by 1 — the whole volt uses this one.
+> **Open item:** `tank-designer` needs validation against a known-good build before it is promoted to the public calculator. Conventions used: half-bridge, `M = nV_out/(V_in/2)`, nominal bus hardcoded at 390 V, `m = (L_r+L_m)/L_r`. Both `m` conventions appear in the literature and differ by 1 — the whole volt uses this one.
 
 ---
 
@@ -137,7 +141,11 @@ To add a widget: create `src/widgets/<volt-slug>/<name>.njk` — no front matter
 
 ### Deck controls
 
-Arrow keys or space to advance, `O` for the slide index, `Esc` to close it, Home/End to jump, swipe on touch. Slide IDs are written to the URL hash, so any slide is directly linkable.
+Arrow keys or space to advance, `O` for the slide index, `F` for full screen, `Esc` to close the index, Home/End to jump, swipe on touch. Slide IDs are written to the URL hash, so any slide is directly linkable.
+
+The stage reserves ~96px for the nav bar when windowed and reclaims it in full screen, where the nav auto-hides and returns on mouse movement. Entering full screen shows a brief "press Esc to exit" toast. Note that `requestFullscreen` needs a user gesture — a volt cannot open full screen on page load, only from a click or key press.
+
+**The slide index shows live thumbnails**, built by cloning each slide node and scaling it. They are constructed lazily on first open, not at page load.
 
 ---
 
@@ -159,6 +167,8 @@ Derived from an existing house system and kept deliberately compatible with it.
 | `--warn` | `#F5C542` | Caution, derate, waiting |
 
 Neutrals: Ink `#0E1116`, Ink-2 `#161A20`, Ink-3 `#1F242C`, line-dark `#242A32`; Paper `#FFFFFF`, off `#F6F7F9`, line `#E7E9ED`; Slate `#59626E`, slate-dark `#8A94A1`, body `#374151`.
+
+The marketing site and the deck share one set of neutrals, so moving between the homepage and a volt does not shift colour temperature. An earlier warm-paper palette (`#FDFAF5` and sand-toned greys) was tried and rejected — light mode is pure white.
 
 Dark sections use Ink `#0E1116`, never pure black.
 
@@ -200,9 +210,11 @@ src/
   _includes/
     base.njk            marketing site layout
     tool.njk            calculator layout (not yet used)
-    figures/            inline SVG figures, themed via CSS vars
+    figures/<volt-slug>/   inline SVG figures, themed via CSS vars
   volts/volt.njk        paginated deck template, layout: null
-  widgets/              standalone widget pages
+  widgets/
+    widgets.11tydata.js    derives every widget permalink from its file path
+    <volt-slug>/           standalone widget pages
   assets/
     css/site.css        marketing site
     css/volt.css        deck engine + theme
@@ -280,14 +292,12 @@ Working directories vary by machine — the project syncs between a home and a w
 
 - Homepage with volt index
 - Volt 01: The LLC Resonant Converter — 18 slides, 5 interactive widgets
-- Deck engine: scaled stage, keyboard/swipe nav, slide index, per-slide theme toggle
+- Deck engine: scaled stage, keyboard/swipe nav, full screen, thumbnail slide index, per-slide theme toggle
 - Brand system applied across site and deck
 
-**Known dead files** — remove or wire up
+**Known dead files**
 
-- `src/_includes/volt.njk` — old page layout, superseded by `src/volts/volt.njk`
-- `src/_includes/figures/zvs-overlap.svg` — replaced by the `zvs-explorer` widget
-- `src/_includes/tool.njk` — calculator layout, no calculator yet
+- `src/_includes/tool.njk` — calculator layout, no calculator yet. Wire it up with the first calculator.
 
 **Next**
 
