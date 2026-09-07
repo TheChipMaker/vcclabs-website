@@ -226,8 +226,42 @@ a.volt-card:hover {
   color: var(--muted);
 }
 
-.hero { max-width: 780px; }
+.hero {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+  align-items: center;
+  gap: 56px;
+}
+
+.hero-copy { max-width: 620px; }
 .hero h1::after { display: none; }
+
+.hero-fig { margin: 0; }
+.hero-fig svg { width: 100%; height: auto; overflow: visible; }
+
+.hero-fig .axis { stroke: var(--line); stroke-width: 1; }
+
+.hero-fig path {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1200;
+  animation: wave-draw 1.4s ease-out 0.3s backwards;
+}
+
+.hero-fig .w-sq { stroke: var(--muted); animation: wave-draw 1.4s ease-out 0.3s backwards, wave-sq 7s ease-in-out 1.7s infinite; }
+.hero-fig .w-sin { stroke: var(--accent); animation: wave-draw 1.4s ease-out 0.3s backwards, wave-sin 7s ease-in-out 1.7s infinite; }
+
+.hero-fig figcaption {
+  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
 
 .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
 
@@ -264,6 +298,8 @@ a.volt-card:hover {
 
 .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 
+  .hero { grid-template-columns: 1fr; gap: 36px; }
+
 .how-item .n {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -280,7 +316,7 @@ a.volt-card:hover {
 
 .how-item p { margin: 0; color: var(--muted); font-size: 15px; }
 
-.hero > * { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) backwards; }
+.hero-copy > * { animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) backwards; }
 .hero .eyebrow { animation-delay: 0.04s; }
 .hero h1 { animation-delay: 0.10s; }
 .hero p { animation-delay: 0.18s; }

@@ -4,13 +4,24 @@ title: Home
 description: The subjects every electrical engineering student has to take, in under ten minutes each.
 ---
 <section class="hero">
-  <span class="eyebrow">For electrical engineering students</span>
-  <h1>Confused to competent, in under ten minutes.</h1>
-  <p>VccLabs teaches the subjects every electrical engineering student on the planet has to take. Power electronics, Fourier transforms, calculus. All interactive, no fluff.</p>
-  <div class="hero-cta">
-    <a class="btn-primary" href="/volts/llc-resonant-converter/">Start with the LLC converter</a>
-    <a class="btn-quiet" href="#how">What is a volt?</a>
+  <div class="hero-copy">
+    <span class="eyebrow">For electrical engineering students</span>
+    <h1>Confused to competent, in under ten minutes.</h1>
+    <p>VccLabs teaches the subjects every electrical engineering student on the planet has to take. Power electronics, Fourier transforms, calculus. All interactive, no fluff.</p>
+    <div class="hero-cta">
+      <a class="btn-primary" href="/volts/llc-resonant-converter/">Start with the LLC converter</a>
+      <a class="btn-quiet" href="#how">What is a volt?</a>
+    </div>
   </div>
+
+  <figure class="hero-fig" aria-label="A square wave resolving into its fundamental sine">
+    <svg viewBox="0 0 520 150" preserveAspectRatio="xMidYMid meet">
+      <line class="axis" x1="0" y1="75" x2="520" y2="75"/>
+      <path class="w-sq" d="M0,25 H130 V125 H260 V25 H390 V125 H520"/>
+      <path class="w-sin" d="M0,75 C43.3,8.3 86.7,8.3 130,75 C173.3,141.7 216.7,141.7 260,75 C303.3,8.3 346.7,8.3 390,75 C433.3,141.7 476.7,141.7 520,75"/>
+    </svg>
+    <figcaption>Square wave in, fundamental out — the approximation every LLC design starts from</figcaption>
+  </figure>
 </section>
 
 <section class="how" id="how">
