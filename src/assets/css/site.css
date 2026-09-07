@@ -61,22 +61,15 @@ main,
 }
 
 .wordmark {
-  font-family: var(--font-mono);
-  font-weight: 500;
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: 20px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: var(--ink);
   text-decoration: none;
 }
 
-.wordmark::after {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-left: 6px;
-  background: var(--accent);
-}
+.wordmark .ac { color: var(--accent); }
 
 .site-header nav {
   display: flex;
@@ -114,10 +107,11 @@ main,
 
 .hero h1 {
   margin: 0 0 16px;
-  font-size: 44px;
-  font-weight: 600;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
 }
 
 .hero h1::after {
@@ -214,6 +208,9 @@ a.volt-card:hover {
 
 .site-footer a { color: var(--muted); text-decoration: none; }
 .site-footer a:hover { color: var(--accent); }
+
+.endorse { color: var(--muted); }
+.endorse b { font-family: var(--font-display); font-weight: 600; color: var(--ink); }
 
 .small-screen-notice { display: none; }
 
