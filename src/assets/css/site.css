@@ -77,6 +77,7 @@ main,
 
 .chip { width: 22px; height: 22px; fill: currentColor; flex: none; }
 
+.wordmark-text { display: inline-block; }
 .wordmark .ac { color: var(--accent); }
 
 .site-header nav {
