@@ -22,6 +22,18 @@
     frame.style.transform = "translate(-50%,-50%) translateY(" + (-navSpace / 2 / s) + "px) scale(" + s + ")";
   }
 
+    /* Slide bodies are centred, so overflow escapes both edges and gets
+     clipped. Measure from the top, then zoom the body down to fit. */
+  function autofit() {
+    Array.prototype.forEach.call(document.querySelectorAll(".s-body"), function (b) {
+      b.style.zoom = "";
+      b.style.justifyContent = "flex-start";
+      var avail = b.clientHeight, need = b.scrollHeight;
+      b.style.justifyContent = "";
+      if (need > avail + 1) b.style.zoom = Math.max(0.72, avail / need).toFixed(4);
+    });
+  }
+
   /* A slide's surface is dark either when the site theme is dark and the
      slide is normal, or the theme is light and the slide is inverted. */
   function markSurfaces() {
@@ -172,7 +184,7 @@
     wakeTimer = setTimeout(function () { bar.classList.remove("is-woken"); }, 2000);
   });
 
-  addEventListener("resize", fit);
+  addEventListener("resize", function () { fit(); autofit(); });
   addEventListener("hashchange", function () { show(hashIndex(), false); });
 
   new MutationObserver(markSurfaces).observe(document.documentElement, {
@@ -182,4 +194,6 @@
   fit();
   markSurfaces();
   show(hashIndex(), false);
+  autofit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(autofit);
 })();
