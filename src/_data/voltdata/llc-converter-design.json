@@ -101,8 +101,8 @@
                 },
                 {
                     "label": "The ceiling",
-                    "expression": "Q<sub>ZVS</sub> : where the input impedance phase reaches <span class=\"hl\">zero</span>",
-                    "note": "Evaluate at maximum output power and minimum input voltage — the corner where the phase margin is smallest. Then back off."
+                    "expression": "∠Z<sub>in</sub>(Q<sub>ZVS</sub>) = <span class=\"hl\">0</span>",
+                    "note": "The Q at which the input impedance phase hits zero. Evaluate at maximum power and minimum input voltage, then back off."
                 }
             ],
             "points": [
@@ -110,7 +110,7 @@
                     "text": "<b>Take 5 to 10% margin</b> below Q<sub>ZVS</sub>. Component tolerance, temperature drift on C<sub>r</sub>, and transient overshoot all eat into it."
                 },
                 {
-                    "text": "<b>Overload walks you off the edge.</b> Exceed the load the Q<sub>max</sub> curve was drawn for and the operating point crosses into capacitive operation, where hard switching can destroy the primary FETs.",
+                    "text": "<b>Overload walks you off the edge.</b> Exceed the load the Q<sub>max</sub> curve was drawn for and the operating point crosses into capacitive operation.",
                     "tone": "fault"
                 },
                 {
@@ -377,7 +377,7 @@
                     "items": [
                         "<b>Start-up.</b> Output at zero demands enormous gain; sweep the frequency down from well above f<sub>r</sub>",
                         "<b>No load.</b> The light-load curve peaks hard and frequency control runs out of range; burst mode is the usual answer",
-                        "<b>Output short.</b> The loop chases gain downward into the capacitive region",
+                        "<b>Output short.</b> The loop chases gain down into the capacitive region",
                         "<b>Hold-up droop with a step load</b> applied at the same moment"
                     ]
                 },
@@ -385,10 +385,10 @@
                     "label": "Then check the hardware",
                     "tone": "cost",
                     "items": [
-                        "<b>Minimum frequency clamp</b> present and set below f<sub>min</sub> but above the peak locus",
-                        "<b>Measured L<sub>r</sub> and L<sub>m</sub></b> on the built transformer, not the design values",
-                        "<b>C<sub>r</sub> capacitance at operating bias and temperature</b>, not at 1 kHz on the bench",
-                        "<b>V<sub>ds</sub> at turn-on</b> observed at light load and high line, the hardest ZVS corner"
+                            "<b>Minimum frequency clamp</b> set below f<sub>min</sub>, above the peak locus",
+    "<b>Measured L<sub>r</sub> and L<sub>m</sub></b> on the built transformer, not design values",
+    "<b>C<sub>r</sub> at operating bias and temperature</b>, not 1 kHz on the bench",
+    "<b>V<sub>ds</sub> at turn-on</b> at light load and high line, the worst ZVS corner"
                     ]
                 }
             ],
