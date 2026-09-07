@@ -5,6 +5,8 @@
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-display: 'Sora', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --signal: #2C66EA;
+  --warn: #F5C542;
 }
 
 [data-theme="light"] {
@@ -237,25 +239,111 @@ a.volt-card:hover {
 .hero-copy { max-width: 620px; }
 .hero h1::after { display: none; }
 
-.hero-fig { margin: 0; }
-.hero-fig svg { width: 100%; height: auto; overflow: visible; }
-
-.hero-fig .axis { stroke: var(--line); stroke-width: 1; }
-
-.hero-fig path {
-  fill: none;
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1200;
-  animation: wave-draw 1.4s ease-out 0.3s backwards;
+.hero-fig {
+  margin: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--surface);
 }
 
-.hero-fig .w-sq { stroke: var(--muted); animation: wave-draw 1.4s ease-out 0.3s backwards, wave-sq 7s ease-in-out 1.7s infinite; }
-.hero-fig .w-sin { stroke: var(--accent); animation: wave-draw 1.4s ease-out 0.3s backwards, wave-sin 7s ease-in-out 1.7s infinite; }
+.hero-fig svg { width: 100%; height: auto; overflow: visible; display: block; }
+.hero-fig .axis { stroke: var(--line); stroke-width: 1; }
+
+.hero-fig path { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.hero-fig .w-target { stroke: var(--line); stroke-width: 2; }
+.hero-fig .w-gibbs { stroke: var(--warn); stroke-width: 1; stroke-dasharray: 3 4; opacity: 0.8; }
+
+.fig-modes { display: flex; gap: 8px; margin-top: 16px; }
+
+.fig-modes button {
+  flex: 1;
+  min-height: 34px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.fig-modes button:hover { color: var(--ink); }
+.fig-modes button.is-on { color: var(--signal); border-color: var(--signal); }
+.hero-fig .w-sum { stroke: var(--accent); transition: d 0.3s ease; }
+
+.fig-tag {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 5px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.fig-ctl { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+
+.hw-play {
+  flex: none;
+  min-width: 74px;
+  min-height: 36px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.hw-play:hover { color: var(--signal, #2C66EA); border-color: var(--signal, #2C66EA); }
+
+.fig-ctl input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--line);
+  outline: none;
+  cursor: pointer;
+}
+
+.fig-ctl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--signal, #2C66EA);
+  border: 2px solid var(--surface);
+  cursor: pointer;
+}
+
+.fig-ctl input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--signal, #2C66EA);
+  border: 2px solid var(--surface);
+  cursor: pointer;
+}
+
+.hw-read {
+  flex: none;
+  min-width: 92px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+}
 
 .hero-fig figcaption {
-  margin-top: 18px;
+  margin-top: 16px;
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.5;

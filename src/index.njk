@@ -14,13 +14,26 @@ description: The subjects every electrical engineering student has to take, in u
     </div>
   </div>
 
-  <figure class="hero-fig" aria-label="A square wave resolving into its fundamental sine">
-    <svg viewBox="0 0 520 150" preserveAspectRatio="xMidYMid meet">
+    <figure class="hero-fig" data-hero-wave>
+    <span class="fig-tag">Live volt widget</span>
+    <svg viewBox="0 0 520 150" preserveAspectRatio="xMidYMid meet" aria-label="A square wave built from its harmonics">
       <line class="axis" x1="0" y1="75" x2="520" y2="75"/>
-      <path class="w-sq" d="M0,25 H130 V125 H260 V25 H390 V125 H520"/>
-      <path class="w-sin" d="M0,75 C43.3,8.3 86.7,8.3 130,75 C173.3,141.7 216.7,141.7 260,75 C303.3,8.3 346.7,8.3 390,75 C433.3,141.7 476.7,141.7 520,75"/>
+      <line class="w-gibbs" x1="0" y1="16.1" x2="520" y2="16.1"/>
+      <line class="w-gibbs" x1="0" y1="133.9" x2="520" y2="133.9"/>
+      <path class="w-target" d=""/>
+      <path class="w-sum" d=""/>
     </svg>
-    <figcaption>Square wave in, fundamental out — the approximation every LLC design starts from</figcaption>
+    <div class="fig-modes" role="group" aria-label="Waveform">
+      <button type="button" data-hw-mode="sq" class="is-on">Square</button>
+      <button type="button" data-hw-mode="saw">Sawtooth</button>
+      <button type="button" data-hw-mode="tri">Triangle</button>
+    </div>
+    <div class="fig-ctl">
+      <button type="button" class="hw-play" data-hw-play aria-pressed="false">Play</button>
+      <input type="range" min="1" max="15" step="1" value="1" data-hw-n aria-label="Highest harmonic">
+      <span class="hw-read" data-hw-read>n ≤ 1</span>
+    </div>
+    <figcaption>Add harmonics and the sines become a square wave. This is a volt slide, running here.</figcaption>
   </figure>
 </section>
 
