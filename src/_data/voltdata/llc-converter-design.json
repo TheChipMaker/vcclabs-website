@@ -198,14 +198,14 @@
                     "text": "<b>Three ways out.</b> Lengthen t<sub>dead</sub>, choose a FET with less output charge, or reduce m — in that order of preference, because the third one costs efficiency everywhere."
                 },
                 {
-                    "text": "<b>C<sub>o(tr)</sub>, not datasheet C<sub>oss</sub>.</b> Use the charge-equivalent value across the full V<sub>ds</sub> swing. The spot capacitance at rated voltage will flatter the design by a wide margin.",
+                    "text":     "<b>C<sub>o(tr)</sub>, not datasheet C<sub>oss</sub>.</b> Use the charge-equivalent value across the full V<sub>ds</sub> swing. The spot value at rated voltage flatters the design badly.",
                     "tone": "fault"
                 },
                 {
                     "text": "<b>Longer dead time is not free.</b> It eats conduction window and narrows the achievable gain at the frequency extremes."
                 }
             ],
-            "callout": "Nudge <b>C<sub>o(tr)</sub></b> up by a few tens of picofarads and the ceiling drops below the L<sub>m</sub> you wanted. The default design is only 6% clear of it — that is how narrow this constraint really is, and why FET selection belongs in the tank design rather than after it."
+              "callout": "Nudge <b>C<sub>o(tr)</sub></b> up by a few tens of picofarads and the ceiling drops below the L<sub>m</sub> you wanted. The default design clears it by only 6% — which is why FET selection belongs inside the tank design, not after it."
         },
         {
             "id": "stresses",
@@ -223,7 +223,7 @@
                     "text": "<b>I<sub>Lr</sub> rms</b> sizes the primary FET conduction loss, the resonant inductor wire, and the primary winding. It combines the reflected load current with the magnetising current."
                 },
                 {
-                    "text": "<b>V<sub>Cr</sub> peak</b> is the DC blocking level plus the AC swing across C<sub>r</sub>. It routinely lands two to three times the rail — this is why C<sub>r</sub> is a 630 V part in a 390 V converter.",
+                    "text": "<b>V<sub>Cr</sub> peak</b> is the DC blocking level plus the AC swing across C<sub>r</sub>. It lands two to three times the rail — hence a 630 V part in a 390 V converter.",
                     "tone": "fault"
                 },
                 {
@@ -233,7 +233,7 @@
                     "text": "<b>These are FHA estimates at f<sub>r</sub>.</b> Good enough to select parts and set a thermal budget. Not good enough to skip the simulation."
                 }
             ],
-            "callout": "A design is not finished when L<sub>r</sub>, C<sub>r</sub> and L<sub>m</sub> exist. It is finished when every part in the loop has a rating with margin against these numbers at the worst corner."
+              "callout": "The design is finished not when the tank exists, but when every part in the loop is rated with margin against these numbers at the worst corner."
         },
         {
             "id": "resonant-cap",
