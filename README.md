@@ -70,7 +70,7 @@ Auto-fit is a net, not a licence. Below about 0.9 the slide reads visibly smalle
 - Every slide carries a dark/light toggle in its header.
 - Slides are numbered with a stable ref (`V01-S07`) shown in the footer, so a slide can be cited in support or errata.
 
-**Superseded:** the earlier "plain rectangular slides, no rounded corners, no decorative frame" rule is **no longer in force**. The brand system specifies `--radius: 16px` / `--radius-sm: 10px` and the slide components use them. Do not reintroduce the square-corner rule without changing this section.
+**Superseded:** the earlier "plain rectangular slides, no rounded corners, no decorative frame" rule is **no longer in force**. The brand system specifies `--radius: 16px` / `--radius-sm: 10px` and the slide components use them. Do not reintroduce the square-corner rule without changing this section. The marketing site follows the opposite convention on purpose: cards, buttons and pills are square-cornered there, because the site is chrome and the deck is content.
 
 ### Slide types
 
@@ -165,7 +165,26 @@ The stage reserves ~96px for the nav bar when windowed and reclaims it in full s
 
 ## 7. Brand
 
-Derived from an existing house system and kept deliberately compatible with it.
+**VccLabs is a BoxBox Industries project and shares its brand system deliberately.** Same signature green, same three typefaces, same semantic four. The site footer carries an endorsement line ("A BoxBox Industries project"). This is a decision, not inheritance — do not diverge the palette or the type without changing this paragraph first.
+
+The source guide is *BoxBox Industries — Brand Guide v2*. It lives in the BoxBox repository, not this one. What follows is the VccLabs reading of it.
+
+### The mark
+
+The wordmark is "VccLabs" in Sora 700, mixed case, with **Labs** in green, preceded by the BoxBox chip icon. The site header and the deck slide header use the same construction, so the mark is identical everywhere.
+
+**The chip is only ever ink `#0E1116` or white** — it takes the surface's foreground colour via `currentColor` and is never green, never a semantic colour, and never animated. No glow, no pulse, no shadow. A `pin-glow` hover was tried and removed for exactly this reason.
+
+`src/assets/img/chip.svg` is the standalone file for favicon and app-icon use. The page itself uses an inline `<symbol id="chip">` in `base.njk`, referenced with `<use>`.
+
+### Green, and where it is allowed to be a surface
+
+Green means ready, correct, or go — never decoration and never a section colour. That rule constrains backgrounds: a green panel is only justified where the page is genuinely signalling *act now*, and even then it competes with the CTA button. A green Pro-pass band was built and removed; the section reads better as a hairline-separated strip.
+
+Two tokens, two jobs, do not confuse them:
+
+- `--green` `#15B86A` — the signature value, for **surfaces**. Fixed across both themes, because a semantic surface must not shift hue when the theme flips. Text on it is ink `#0E1116`; white on green is ~2.4:1 and fails contrast.
+- `--accent` — the **text** green, `#0C7A48` on light and `#2BD27D` on dark, tuned per theme for legibility.
 
 ### Colour
 
@@ -204,6 +223,10 @@ Dark sections use Ink `#0E1116`, never pure black.
 ### Voice
 
 Like a competent engineer who respects the reader's time. Precise where it is safety-critical, plain everywhere else. Numbers are exact; instructions are verbs. When something is wrong, say what happened and the one next action — no alarm, no blame.
+
+### Motion
+
+Motion is used sparingly and only on content: staggered entrance on the hero, a small lift on hover for cards and the primary button. **The logo never moves.** Every animation and transition is killed globally by the `prefers-reduced-motion` rule at the foot of `site.css`, so new motion needs no per-rule guard — but it must be defined above that rule to be caught by it.
 
 ### Theme
 
@@ -304,7 +327,8 @@ Working directories vary by machine — the project syncs between a home and a w
 
 **Built**
 
-- Homepage with volt index
+- Homepage: hero with CTAs, "how a volt works" band, volt library, Pro strip
+- Brand conformance pass: chip mark, Sora display type, BoxBox endorsement, single green for surfaces
 - Volt 01: The LLC Resonant Converter — 19 slides, 5 interactive widgets
 - Volt 02: Designing an LLC Converter — 14 slides, reusing `tank-designer` across the volt boundary via the `<volt-slug>/<name>` path form
 - Deck engine: scaled stage, keyboard/swipe nav, full screen, thumbnail slide index, per-slide theme toggle, per-slide body auto-fit
@@ -323,6 +347,10 @@ Working directories vary by machine — the project syncs between a home and a w
 - [ ] A buck converter volt to carry the undergraduate pitch
 - [ ] Resolve the support-link platform, then wire the footer URL
 - [ ] Verify slide fit against the real render on both decks; the length budget above was set from an estimate, not a measurement
+- [ ] `/brand/` living style guide, built from the real `site.css` tokens rather than exported as a static file
+- [ ] Remove `brand_guide/` from this repo — it is BoxBox's asset and the largest thing in the tree (745 KB of vendor bundle)
+- [ ] Hero gain-curve animation
+- [ ] Favicon and app icon from `chip.svg`
 
 **Later**
 

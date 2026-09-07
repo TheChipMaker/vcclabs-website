@@ -296,42 +296,28 @@ a.volt-card:hover { transform: translateY(-3px); }
 .how-item:hover { transform: translateY(-3px); }
 
 .pro {
-  position: relative;
-  overflow: hidden;
   display: flex;
-  align-items: center;
-  gap: 28px;
-  margin-bottom: 64px;
-  padding: 34px 36px;
-  background: var(--green);
-  color: var(--navy);
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 28px 0 64px;
+  border-top: 1px solid var(--line);
+  margin-top: 8px;
 }
 
-.pro-chip {
-  position: absolute;
-  right: -30px;
-  bottom: -40px;
-  width: 190px;
-  height: 190px;
-  fill: currentColor;
-  opacity: 0.12;
-  pointer-events: none;
-}
-
-.pro-copy { flex: 1; position: relative; }
-.pro h2 { color: var(--navy); border-bottom: none; padding-bottom: 0; margin-bottom: 10px; opacity: 0.7; }
-.pro p { margin: 0; color: var(--navy); max-width: 52ch; }
-.pro p b { font-family: var(--font-mono); font-weight: 500; }
+.pro-copy { flex: 1; }
+.pro h2 { border-bottom: none; padding-bottom: 0; padding-top: 20px; }
+.pro p { margin: 0; color: var(--muted); max-width: 52ch; }
+.pro p b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
 
 .pro-state {
-  position: relative;
   flex: none;
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--navy);
-  border: 1px solid rgba(14, 17, 22, 0.3);
+  color: var(--muted);
+  border: 1px solid var(--line);
   padding: 10px 16px;
 }
 
