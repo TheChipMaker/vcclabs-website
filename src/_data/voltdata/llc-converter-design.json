@@ -127,8 +127,8 @@
             "eyebrow": "Step 3",
             "title": "Pick m so the peak clears<br>your required gain",
             "titleSize": 38,
-            "leftFlex": 1.45,
-            "rightFlex": 0.8,
+    "leftFlex": 1.15,
+    "rightFlex": 1.0,
             "widget": "llc-resonant-converter/tank-designer",
             "widgetTitle": "Interactive LLC tank designer",
             "points": [
@@ -186,8 +186,8 @@
             "eyebrow": "Step 5",
             "title": "Check L<sub>m</sub> against<br>the <span class=\"hl\">dead time</span>",
             "titleSize": 38,
-            "leftFlex": 1.45,
-            "rightFlex": 0.8,
+    "leftFlex": 1.15,
+    "rightFlex": 1.0,
             "widget": "llc-resonant-converter/tank-designer",
             "widgetTitle": "Interactive LLC tank designer — ZVS check",
             "points": [
@@ -214,8 +214,8 @@
             "eyebrow": "Step 6",
             "title": "The numbers you actually<br><span class=\"hl\">order parts</span> from",
             "titleSize": 38,
-            "leftFlex": 1.45,
-            "rightFlex": 0.8,
+    "leftFlex": 1.15,
+    "rightFlex": 1.0,
             "widget": "llc-resonant-converter/tank-designer",
             "widgetTitle": "Interactive LLC tank designer — stresses",
             "points": [
@@ -340,8 +340,8 @@
             "eyebrow": "Worked example",
             "title": "The tank, and the parts<br>it <span class=\"hl\">demands</span>",
             "titleSize": 38,
-            "leftFlex": 1.45,
-            "rightFlex": 0.8,
+    "leftFlex": 1.15,
+    "rightFlex": 1.0,
             "widget": "llc-resonant-converter/tank-designer",
             "widgetTitle": "Interactive LLC tank designer — worked example",
             "points": [
