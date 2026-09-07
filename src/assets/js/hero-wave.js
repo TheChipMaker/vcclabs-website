@@ -7,7 +7,7 @@
   var readout = fig.querySelector("[data-hw-read]");
   var play = fig.querySelector("[data-hw-play]");
 
-    var W = 520, CY = 75, A = 50, PER = 2, SAMPLES = 300;
+  var W = 520, CY = 75, A = 50, PER = 2, SAMPLES = 300;
   var timer = null, mode = "sq";
   var modes = fig.querySelectorAll("[data-hw-mode]");
   var gibbs = fig.querySelectorAll(".w-gibbs");
@@ -63,6 +63,25 @@
 
   for (var j = 0; j < modes.length; j++) {
     modes[j].addEventListener("click", function () { setMode(this.getAttribute("data-hw-mode")); });
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    play.textContent = "Play";
+    play.setAttribute("aria-pressed", "false");
+  }
+
+  function start() {
+    var dir = 1;
+    play.textContent = "Pause";
+    play.setAttribute("aria-pressed", "true");
+    timer = setInterval(function () {
+      var n = +slider.value + dir;
+      if (n >= +slider.max) { n = +slider.max; dir = -1; }
+      else if (n <= 1) { n = 1; dir = 1; }
+      slider.value = n;
+      draw(n);
+    }, 380);
   }
 
   slider.addEventListener("input", function () { stop(); draw(+slider.value); });
