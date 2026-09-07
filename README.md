@@ -58,6 +58,13 @@ The word "deck" is retired as a product term. Routes are `/volts/<slug>/`, conte
 
 A volt is a **full-viewport slide deck**, not a scrolling page. It renders on a fixed 1280×720 stage scaled to fit the viewport, so layout is deterministic — a slide looks identical everywhere and never reflows.
 
+**The stage is a hard budget.** The slide body between header and footer is about 564px tall. `.s-body` centres its children, so content that exceeds that height escapes both edges and is clipped by `.slide { overflow: hidden }` — silently, with no error. Two things guard against it:
+
+- `.cols` and `.parallel` are `flex: 1 0 auto`. They grow but never compress below their content, so overflow stays measurable instead of collapsing a column and letting its contents overlap the callout or footer.
+- `autofit()` in `src/assets/js/volt.js` measures each `.s-body` from the top and applies a `zoom` factor when content exceeds the box, with a floor of 0.72. It reruns on resize and again on `document.fonts.ready`, because Sora and Inter load after first paint and the pre-font measurement is wrong.
+
+Auto-fit is a net, not a licence. Below about 0.9 the slide reads visibly smaller than its neighbours, so treat anything needing more than that as a copy problem. Practical limits per slide: a `split` right column holds four points plus a callout only if points stay near 150 characters; `equations` expressions must fit one line at 34px mono; `parallel` columns want six wrapped lines total, not eight.
+
 - Roughly 15–20 slides, consumable in 30 minutes or less.
 - Thumbnails carry honest, specific durations using odd numbers — "9 minute volt", not "5 min read". The label says *volt*, never *read*.
 - Every slide carries a dark/light toggle in its header.
@@ -300,7 +307,7 @@ Working directories vary by machine — the project syncs between a home and a w
 - Homepage with volt index
 - Volt 01: The LLC Resonant Converter — 19 slides, 5 interactive widgets
 - Volt 02: Designing an LLC Converter — 14 slides, reusing `tank-designer` across the volt boundary via the `<volt-slug>/<name>` path form
-- Deck engine: scaled stage, keyboard/swipe nav, full screen, thumbnail slide index, per-slide theme toggle
+- Deck engine: scaled stage, keyboard/swipe nav, full screen, thumbnail slide index, per-slide theme toggle, per-slide body auto-fit
 - Brand system applied across site and deck
 
 **Known dead files**
@@ -315,6 +322,7 @@ Working directories vary by machine — the project syncs between a home and a w
 - [ ] Decide the small-screen policy for the deck
 - [ ] A buck converter volt to carry the undergraduate pitch
 - [ ] Resolve the support-link platform, then wire the footer URL
+- [ ] Verify slide fit against the real render on both decks; the length budget above was set from an estimate, not a measurement
 
 **Later**
 
