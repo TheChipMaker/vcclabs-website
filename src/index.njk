@@ -4,12 +4,38 @@ title: Home
 description: The subjects every electrical engineering student has to take, in under ten minutes each.
 ---
 <section class="hero">
+  <span class="eyebrow">For electrical engineering students</span>
   <h1>Confused to competent, in under ten minutes.</h1>
   <p>VccLabs teaches the subjects every electrical engineering student on the planet has to take. Power electronics, Fourier transforms, calculus. All interactive, no fluff.</p>
+  <div class="hero-cta">
+    <a class="btn-primary" href="/volts/llc-resonant-converter/">Start with the LLC converter</a>
+    <a class="btn-quiet" href="#how">What is a volt?</a>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <h2>How a volt works</h2>
+  <div class="how-grid">
+    <div class="how-item">
+      <span class="n">01</span>
+      <h3>A deck, not a chapter</h3>
+      <p>Fifteen to twenty slides on one idea. No preamble, no worked-example padding, no chapter you have to read twice.</p>
+    </div>
+    <div class="how-item">
+      <span class="n">02</span>
+      <h3>The figures move</h3>
+      <p>Drag the resonant tank and watch the gain curve answer. The interactive is the explanation, not an illustration beside it.</p>
+    </div>
+    <div class="how-item">
+      <span class="n">03</span>
+      <h3>Every number is exact</h3>
+      <p>Real design values at real operating points, with the corners where the maths stops being true called out on the slide.</p>
+    </div>
+  </div>
 </section>
 
 <section class="volt-list">
-  <h2>Volts</h2>
+  <h2>The library</h2>
   {% for volt in volts %}
     {% if volt.status == "published" %}
     <a class="volt-card" href="/volts/{{ volt.slug }}/">
@@ -27,4 +53,12 @@ description: The subjects every electrical engineering student has to take, in u
     </div>
     {% endif %}
   {% endfor %}
+</section>
+
+<section class="pro">
+  <div>
+    <h2>Pro pass</h2>
+    <p>Every volt in the library, one annual pass. <b>$39 a year</b> — about the price of one textbook chapter you would have skimmed anyway.</p>
+  </div>
+  <span class="pro-state">Opening soon</span>
 </section>

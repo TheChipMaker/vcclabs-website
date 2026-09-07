@@ -206,6 +206,99 @@ a.volt-card:hover {
   color: var(--muted);
 }
 
+.eyebrow {
+  display: block;
+  margin-bottom: 18px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero { max-width: 780px; }
+.hero h1::after { display: none; }
+
+.hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+
+.btn-primary,
+.btn-quiet {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 22px;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-quiet { color: var(--muted); border: 1px solid var(--line); }
+.btn-quiet:hover { color: var(--ink); border-color: var(--accent); }
+
+.how { padding-bottom: 56px; }
+
+.how h2,
+.pro h2 {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+
+.how-item .n {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.how-item h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  margin: 10px 0 8px;
+}
+
+.how-item p { margin: 0; color: var(--muted); font-size: 15px; }
+
+.pro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 28px 0 64px;
+}
+
+.pro h2 { border-bottom: none; padding-bottom: 0; }
+.pro p { margin: 0; color: var(--muted); max-width: 52ch; }
+.pro p b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+
+.pro-state {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 10px 16px;
+}
+
+@media (max-width: 900px) {
+  .how-grid { grid-template-columns: 1fr; gap: 24px; }
+  .pro { flex-direction: column; align-items: flex-start; }
+}
+
 .site-footer a { color: var(--muted); text-decoration: none; }
 .site-footer a:hover { color: var(--accent); }
 
@@ -216,7 +309,6 @@ a.volt-card:hover {
 
 @media (max-width: 767px) {
   main, .site-header nav, .site-footer { display: none; }
-  .wordmark::after { display: none; }
   .small-screen-notice {
     display: block;
     padding: 40px 24px;
