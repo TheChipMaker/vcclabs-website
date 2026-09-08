@@ -27,19 +27,42 @@ Do not conflate the two in copy, navigation, or pricing pages.
 
 ## 2. Curriculum roadmap
 
-Order is deliberate — power electronics first because it is where the existing domain depth is.
+Order is deliberate — circuit fundamentals first, because that is what "confused to competent" actually promises. Power electronics is a senior elective, not a subject every EE student has to take, and leading with it would build the library the founder's expertise wants rather than the one the positioning sells. It also has the weaker calculator funnel: search volume for foundational tools is orders of magnitude above anything in resonant conversion.
 
-1. Power electronics
+1. Circuit fundamentals
 2. Signals and systems
-3. Electromagnetics
-4. Calculus
-5. Physics
+3. Power electronics
+4. Electromagnetics
+5. Calculus
+6. Physics
 
 Later, once the format is proven: computer engineering, mechatronics, mechanical engineering.
 
-> **Open item:** volts 01 and 02 are LLC resonant conversion, currently withheld (see §12), a senior-elective-to-practitioner topic rather than undergraduate material. Built first because that is where the domain depth is, and they serve working engineers well — which also makes them the right pair to show an institutional buyer. Both are labelled **advanced**. Neither can carry the "confused to competent" undergraduate pitch on its own; a buck converter volt is still needed for that.
+> The two LLC resonant conversion volts were built first and are currently withheld (see §12). They serve working engineers and suit an institutional buyer, but neither can carry the undergraduate pitch. They sit outside the numbered sequence below and are referred to by name, not number.
 
 ---
+
+
+### The first eight
+
+Circuits I, roughly the first six weeks of an EE degree. Six of the eight carry a high-volume paired calculator, which is the main argument for this ordering.
+
+| # | Volt | Core idea | Paired calculator |
+|---|------|-----------|-------------------|
+| 01 | Ohm's Law and Power | V, I, R, P as one relationship seen four ways | Ohm's law / power |
+| 02 | Series and Parallel Resistors | Why parallel is "less than the smallest" | Resistance combiner |
+| 03 | The Voltage Divider | The most reused circuit in electronics, and when loading breaks it | Voltage divider |
+| 04 | Kirchhoff's Laws | KVL and KCL as bookkeeping, not magic | — |
+| 05 | Capacitors: Charge, Energy, and What They Do | Why a cap resists voltage change | Capacitor energy |
+| 06 | RC Transients and the Time Constant | τ, the exponential, the 5τ rule | Time constant |
+| 07 | AC, RMS, and Why 120 V Isn't 120 V | Peak vs RMS vs average | RMS / peak |
+| 08 | Impedance and Reactance | Resistance generalized to AC | Reactance |
+
+**These topics are covered by ten thousand YouTube videos.** The differentiator cannot be that we explain Ohm's law — it has to be that the interactive does something a textbook page cannot. Volt 03 is the bar: a divider is trivial until you load it, and watching the output sag as you drag a load resistor is exactly what students do not get from the formula. A volt in this range that cannot clear that bar should not ship.
+
+Volts 01–04 share one parameterized widget — a schematic with draggable component values and live node voltages — rather than four bespoke ones. This is deliberately the place to force the step 2 → step 3 transition described in §4, because the content is easy enough that the schema is the only hard part.
+
+After these eight, reassess before committing to the next batch.
 
 ## 3. Naming
 
@@ -97,7 +120,7 @@ Volt 01 was hand-built and written as JSON from day one, which is how the schema
 2. Encode those types as a schema consumed by the Nunjucks template and parameterized widgets.
 3. From then on, new volts are new JSON files against the established schema — not bespoke interactives built from scratch each time.
 
-We are between steps 2 and 3. The four slide types are stable; the widgets are still bespoke.
+We are between steps 2 and 3. The four slide types are stable; the widgets are still bespoke. Volts 01–04 of the first eight are where step 3 gets forced — one parameterized circuit widget across four volts, not four one-offs.
 
 ---
 
@@ -348,7 +371,9 @@ Both LLC volts are hidden pending a technical revision of their content. They ar
 - [ ] Second reviewer on the volt 02 stress equations before the calculator goes public
 - [ ] Promote it to a real calculator at `/tools/llc-tank-designer/` with numeric inputs and SEO copy
 - [ ] Decide the small-screen policy for the deck
-- [ ] A buck converter volt to carry the undergraduate pitch
+- [ ] Build the shared circuit widget (draggable values, live node voltages) — volts 01–04 depend on it
+- [ ] Volts 01–08, the circuit fundamentals sequence (see §2)
+- [ ] Decide whether the homepage leads with volt 01 — Ohm's law is the most elementary possible first impression
 - [ ] Resolve the support-link platform, then wire the footer URL
 - [ ] Verify slide fit against the real render on both decks; the length budget above was set from an estimate, not a measurement
 - [ ] `/brand/` living style guide, built from the real `site.css` tokens rather than exported as a static file
