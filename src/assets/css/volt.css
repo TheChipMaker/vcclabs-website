@@ -501,7 +501,7 @@
 
 .point.is-fault .n { background: var(--fault); }
 .point.is-ready .n { background: var(--ready); }
-.point p { font: 400 17px/1.45 var(--font-body); color: var(--slate); }
+.point p { margin: 0; font: 400 17px/1.45 var(--font-body); color: var(--slate); }
 .point p b { color: var(--body-txt); font-weight: 600; }
 .slide.on-dark .point p { color: var(--muted-2); }
 .slide.on-dark .point p b { color: #E7E9ED; }
