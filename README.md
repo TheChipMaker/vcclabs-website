@@ -37,7 +37,7 @@ Order is deliberate — power electronics first because it is where the existing
 
 Later, once the format is proven: computer engineering, mechatronics, mechanical engineering.
 
-> **Open item:** volts 01 and 02 are LLC resonant conversion, a senior-elective-to-practitioner topic rather than undergraduate material. Built first because that is where the domain depth is, and they serve working engineers well — which also makes them the right pair to show an institutional buyer. Both are labelled **advanced**. Neither can carry the "confused to competent" undergraduate pitch on its own; a buck converter volt is still needed for that.
+> **Open item:** volts 01 and 02 are LLC resonant conversion, currently withheld (see §12), a senior-elective-to-practitioner topic rather than undergraduate material. Built first because that is where the domain depth is, and they serve working engineers well — which also makes them the right pair to show an institutional buyer. Both are labelled **advanced**. Neither can carry the "confused to competent" undergraduate pitch on its own; a buck converter volt is still needed for that.
 
 ---
 
@@ -329,10 +329,14 @@ Working directories vary by machine — the project syncs between a home and a w
 
 - Homepage: hero with CTAs, "how a volt works" band, volt library, Pro strip
 - Brand conformance pass: chip mark, Sora display type, BoxBox endorsement, single green for surfaces
-- Volt 01: The LLC Resonant Converter — 19 slides, 5 interactive widgets
-- Volt 02: Designing an LLC Converter — 14 slides, reusing `tank-designer` across the volt boundary via the `<volt-slug>/<name>` path form
+- Volt 01: The LLC Resonant Converter — 19 slides, 5 interactive widgets — **withheld, see below**
+- Volt 02: Designing an LLC Converter — 14 slides, reusing `tank-designer` across the volt boundary via the `<volt-slug>/<n>` path form — **withheld, see below**
 - Deck engine: scaled stage, keyboard/swipe nav, full screen, thumbnail slide index, per-slide theme toggle, per-slide body auto-fit
 - Brand system applied across site and deck
+
+**Withheld**
+
+Both LLC volts are hidden pending a technical revision of their content. They are excluded from the build by `pagination.filter` in `src/volts/volt.njk` and marked `"status": "draft"` in `volts.json`, so the library shows them as "In production" tiles and no `/volts/<slug>/` route exists. The JSON and widgets are untouched — remove the two slugs from the filter to restore them.
 
 **Known dead files**
 
