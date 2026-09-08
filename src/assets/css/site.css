@@ -81,6 +81,7 @@ main,
 
 .wordmark-text { display: inline-block; }
 .wordmark .ac { color: var(--accent); }
+.hl { color: var(--accent); }
 
 .site-header nav {
   display: flex;
