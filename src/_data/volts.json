@@ -5,7 +5,7 @@
     "subject": "Power Electronics",
     "minutes": 19,
     "blurb": "Why half-bridge LLC exists, what the tank actually does, and how to read the gain curve without guessing.",
-    "status": "published"
+    "status": "draft"
   },
   {
     "title": "Designing an LLC Converter",
@@ -13,6 +13,6 @@
     "subject": "Power Electronics",
     "minutes": 14,
     "blurb": "A spec sheet in, a tank and a bill of materials out. The procedure, the constraints that fight it, and one worked example end to end.",
-    "status": "published"
+    "status": "draft"
   }
 ]
