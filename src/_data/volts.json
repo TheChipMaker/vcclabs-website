@@ -1,5 +1,13 @@
 [
   {
+    "title": "Ohm's Law and Power",
+    "slug": "ohms-law-and-power",
+    "subject": "Circuit Fundamentals",
+    "minutes": 9,
+    "blurb": "One relationship between four quantities, seen from every corner. Where it holds, where it quietly fails, and why I²R is the term that burns things.",
+    "status": "draft"
+  },
+  {
     "title": "The LLC Resonant Converter",
     "slug": "llc-resonant-converter",
     "subject": "Power Electronics",
