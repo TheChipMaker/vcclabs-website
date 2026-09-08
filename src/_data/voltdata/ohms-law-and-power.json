@@ -57,7 +57,6 @@
       "titleSize": 38,
       "leftFlex": 1.25,
       "rightFlex": 0.95,
-      "figure": "water-analogy",
       "points": [
         {
           "text": "<b>Voltage is pressure difference.</b> It is always measured <i>between</i> two points. A single point has no voltage, the same way a single spot in a pipe has no pressure difference."
@@ -258,7 +257,6 @@
       "titleSize": 38,
       "leftFlex": 1.15,
       "rightFlex": 1,
-      "figure": "transmission",
       "points": [
         {
           "text": "<b>Deliver 100 MW down a line of 5 \u03a9.</b> The power delivered is fixed by the customer. The voltage you send it at is your choice."
@@ -285,7 +283,6 @@
       "titleSize": 38,
       "leftFlex": 1.15,
       "rightFlex": 1,
-      "figure": "resistor-rating",
       "points": [
         {
           "text": "<b>A 220 \u03a9 resistor across 12 V.</b> I = 12/220 = 55 mA. P = V\u00b2/R = 144/220 = 0.65 W."
