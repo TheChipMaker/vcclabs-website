@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four-quantity solver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+  --brand:#15B86A; --brand-b:#2BD27D; --brand-d:#0C7A48;
+  --signal:#2C66EA; --fault:#EF4444; --warn:#F5C542;
+  --txt:#E7E9ED; --mut:#8A94A1; --mut2:#B7BEC9;
+  --panel:#161A20; --panel2:#1F242C; --line:#2a3038;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:transparent;color:var(--txt);font-family:var(--body);
+  display:flex;flex-direction:column;gap:9px;padding:10px;user-select:none;overflow:hidden}
+
+.hint{flex:none;font:500 10px var(--body);color:var(--mut);letter-spacing:.03em}
+.hint b{color:var(--mut2);font-weight:600}
+
+.quads{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:9px 11px;display:flex;flex-direction:column;justify-content:center;
+  cursor:pointer;position:relative;transition:border-color .12s,background .12s}
+.q:hover{border-color:#3a424d}
+.q.lock{border-color:var(--signal);background:#171d2b}
+.q .k{font:600 8.5px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.q .v{font:600 26px/1 var(--mono);margin-top:6px;color:var(--txt);white-space:nowrap}
+.q .v small{font-size:13px;color:var(--mut2);margin-left:2px}
+.q.lock .v{color:#7ea2f5}
+.q .tag{position:absolute;top:8px;right:10px;font:600 8px var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;color:var(--signal);opacity:0}
+.q.lock .tag{opacity:1}
+
+.ctl{flex:none;display:flex;gap:9px}
+.sld{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+.sld .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.sld .nm{font:600 9.5px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--mut2)}
+.sld .rd{font:600 13px var(--mono);color:var(--brand-b)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#2a3038;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+  background:var(--brand);cursor:pointer;border:2px solid #0e1116}
+</style>
+</head>
+<body>
+
+<div class="hint">Tap any <b>two</b> tiles to choose what you know. The other two are then decided.</div>
+
+<div class="quads">
+  <div class="q" data-q="V"><span class="tag">given</span><div class="k">Voltage V</div><div class="v" id="vV">—</div></div>
+  <div class="q" data-q="I"><span class="tag">given</span><div class="k">Current I</div><div class="v" id="vI">—</div></div>
+  <div class="q" data-q="R"><span class="tag">given</span><div class="k">Resistance R</div><div class="v" id="vR">—</div></div>
+  <div class="q" data-q="P"><span class="tag">given</span><div class="k">Power P</div><div class="v" id="vP">—</div></div>
+</div>
+
+<div class="ctl" id="ctl"></div>
+
+<script>
+/* Ohm's law + power. Two of {V,I,R,P} are independent; the other two follow.
+   V=IR, P=VI, and the four substituted forms.                              */
+
+var SPEC = {
+  V: { name: "Voltage",    unit: "V", min: 0.05,  max: 400,    log: false },
+  I: { name: "Current",    unit: "A", min: 0.001, max: 20,     log: true  },
+  R: { name: "Resistance", unit: "\u03a9", min: 0.05, max: 100000, log: true },
+  P: { name: "Power",      unit: "W", min: 0.001, max: 2000,   log: true  }
+};
+
+var val = { V: 12, I: 0.05, R: 240, P: 0.6 };
+var locked = ["V", "R"];
+
+function solve() {
+  var a = locked[0], b = locked[1];
+  var k = [a, b].sort().join("");
+  var v = val;
+  if (k === "IV")      { v.R = v.V / v.I;              v.P = v.V * v.I; }
+  else if (k === "RV") { v.I = v.V / v.R;              v.P = v.V * v.V / v.R; }
+  else if (k === "PV") { v.I = v.P / v.V;              v.R = v.V * v.V / v.P; }
+  else if (k === "IR") { v.V = v.I * v.R;              v.P = v.I * v.I * v.R; }
+  else if (k === "IP") { v.V = v.P / v.I;              v.R = v.P / (v.I * v.I); }
+  else if (k === "PR") { v.V = Math.sqrt(v.P * v.R);   v.I = Math.sqrt(v.P / v.R); }
+}
+
+/* SI-prefixed formatting: 0.0047 A -> 4.70 mA, 47000 ohm -> 47.0 k */
+function fmt(x, unit) {
+  if (!isFinite(x)) return "\u2014";
+  var p = [[1e6, "M"], [1e3, "k"], [1, ""], [1e-3, "m"], [1e-6, "\u00b5"]];
+  for (var i = 0; i < p.length; i++) {
+    if (Math.abs(x) >= p[i][0] || i === p.length - 1) {
+      var s = x / p[i][0];
+      var d = Math.abs(s) >= 100 ? 0 : (Math.abs(s) >= 10 ? 1 : 2);
+      return s.toFixed(d) + '<small>&thinsp;' + p[i][1] + unit + '</small>';
+    }
+  }
+}
+
+/* sliders run 0..1000 so a log decade feels the same as a linear one */
+function toPos(q, x) {
+  var s = SPEC[q];
+  if (s.log) return 1000 * (Math.log(x / s.min) / Math.log(s.max / s.min));
+  return 1000 * (x - s.min) / (s.max - s.min);
+}
+function fromPos(q, p) {
+  var s = SPEC[q];
+  if (s.log) return s.min * Math.pow(s.max / s.min, p / 1000);
+  return s.min + (p / 1000) * (s.max - s.min);
+}
+
+function buildSliders() {
+  var h = "";
+  locked.forEach(function (q) {
+    h += '<div class="sld">' +
+           '<div class="top"><span class="nm">' + SPEC[q].name + ' ' + q + '</span>' +
+           '<span class="rd" id="rd' + q + '">\u2014</span></div>' +
+           '<input type="range" id="sl' + q + '" min="0" max="1000" step="1">' +
+         '</div>';
+  });
+  document.getElementById("ctl").innerHTML = h;
+
+  locked.forEach(function (q) {
+    var el = document.getElementById("sl" + q);
+    el.value = toPos(q, val[q]);
+    el.addEventListener("input", function () {
+      val[q] = fromPos(q, parseFloat(el.value));
+      render();
+    });
+  });
+}
+
+function render() {
+  solve();
+  ["V", "I", "R", "P"].forEach(function (q) {
+    document.getElementById("v" + q).innerHTML = fmt(val[q], SPEC[q].unit);
+    var tile = document.querySelector('[data-q="' + q + '"]');
+    tile.classList.toggle("lock", locked.indexOf(q) > -1);
+  });
+  locked.forEach(function (q) {
+    var rd = document.getElementById("rd" + q);
+    if (rd) rd.innerHTML = fmt(val[q], SPEC[q].unit);
+  });
+}
+
+document.querySelectorAll("[data-q]").forEach(function (tile) {
+  tile.addEventListener("click", function () {
+    var q = tile.dataset.q;
+    if (locked.indexOf(q) > -1) return;
+    locked.shift();          /* oldest lock gives way */
+    locked.push(q);
+    buildSliders();
+    render();
+  });
+});
+
+buildSliders();
+render();
+</script>
+</body>
+</html>

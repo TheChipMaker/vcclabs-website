@@ -1,0 +1,396 @@
+{
+  "title": "Ohm's Law and Power",
+  "subject": "Circuit Fundamentals",
+  "level": "introductory",
+  "minutes": 9,
+  "blurb": "One relationship between four quantities, seen from every corner. Where it holds, where it quietly fails, and why I\u00b2R is the term that burns things.",
+  "prerequisites": [
+    "Basic algebra and unit handling"
+  ],
+  "slides": [
+    {
+      "id": "cover",
+      "type": "cover",
+      "surface": "default",
+      "series": "Circuit Fundamentals \u00b7 Volt 01",
+      "title": "Ohm's Law<br>and Power",
+      "lead": "Four quantities, one relationship. Fix any two and the other two are already decided."
+    },
+    {
+      "id": "the-wheel",
+      "type": "parallel",
+      "ref": "V01-S01",
+      "eyebrow": "The confusion",
+      "title": "Twelve formulas,<br>or <span class=\"hl\">one</span> idea",
+      "titleSize": 42,
+      "lead": "Most courses hand out a wheel of twelve rearrangements and expect you to memorise it. There is nothing to memorise. There are two relationships, and everything on that wheel is algebra applied to them.",
+      "columns": [
+        {
+          "label": "What the wheel gives you",
+          "tone": "cost",
+          "items": [
+            "Twelve formulas that all look equally important",
+            "No sense of which one to reach for",
+            "Nothing about when any of it stops being true",
+            "A memory problem instead of an understanding problem"
+          ]
+        },
+        {
+          "label": "What you actually need",
+          "tone": "gain",
+          "items": [
+            "V = IR, and P = VI",
+            "Any two of V, I, R, P fix the other two",
+            "The rest is substitution",
+            "Plus one thing the wheel never tells you"
+          ]
+        }
+      ],
+      "callout": "That last point is most of this volt. The wheel is true, and it is not the interesting part."
+    },
+    {
+      "id": "water",
+      "type": "split",
+      "ref": "V01-S02",
+      "eyebrow": "Getting a feel for it",
+      "title": "Pressure, flow,<br>and something in the way",
+      "titleSize": 38,
+      "leftFlex": 1.25,
+      "rightFlex": 0.95,
+      "figure": "water-analogy",
+      "points": [
+        {
+          "text": "<b>Voltage is pressure difference.</b> It is always measured <i>between</i> two points. A single point has no voltage, the same way a single spot in a pipe has no pressure difference."
+        },
+        {
+          "text": "<b>Current is flow rate.</b> Charge per second past a point, measured in amperes. Flow is the same everywhere along one unbranched pipe."
+        },
+        {
+          "text": "<b>Resistance is restriction.</b> A narrow section. More restriction means less flow for the same pressure."
+        },
+        {
+          "text": "<b>Then stop using it.</b> Water does not model capacitance, inductance, or anything non-linear. It gets you to V = IR and no further.",
+          "tone": "fault"
+        }
+      ],
+      "callout": "Every analogy has a range of validity. This one ends about four slides from here, and it is worth knowing that before you lean on it."
+    },
+    {
+      "id": "ohms-law",
+      "type": "equations",
+      "ref": "V01-S03",
+      "eyebrow": "The relationship",
+      "title": "V = IR, three ways",
+      "titleSize": 44,
+      "lead": "One equation, rearranged. Which form you write down depends only on which quantity you do not yet know.",
+      "formulas": [
+        {
+          "label": "Solve for voltage",
+          "expression": "V = I \u00d7 R",
+          "note": "You know the current through a component and its resistance. This gives the voltage dropped across it. The most common form in analysis."
+        },
+        {
+          "label": "Solve for current",
+          "expression": "I = V / R",
+          "note": "You know the voltage across a component. This gives the current that will flow. The most common form in design, because supply voltage is usually the fixed quantity."
+        }
+      ],
+      "points": [
+        {
+          "text": "<b>Solve for resistance: R = V / I.</b> Rarely used to design something \u2014 mostly used to measure or to check a suspicion about a part."
+        },
+        {
+          "text": "<b>Watch the units.</b> Volts, amperes, ohms. Milliamps and kilohms cancel to volts, which is convenient and also the single most common place to lose a factor of a thousand."
+        }
+      ]
+    },
+    {
+      "id": "not-a-law",
+      "type": "split",
+      "ref": "V01-S04",
+      "eyebrow": "The part the wheel omits",
+      "title": "Ohm's law is not<br>a <span class=\"hl\">law of nature</span>",
+      "titleSize": 38,
+      "leftFlex": 1.1,
+      "rightFlex": 1.1,
+      "widget": "iv-curve",
+      "widgetTitle": "Interactive I\u2013V curve",
+      "points": [
+        {
+          "text": "<b>It is a property some materials happen to have.</b> Metals at constant temperature obey it well. Nothing guarantees anything else will."
+        },
+        {
+          "text": "<b>A device that obeys it is called ohmic.</b> On a current-versus-voltage plot it draws a straight line through the origin. Nothing else does."
+        },
+        {
+          "text": "<b>The slope of that line is 1/R.</b> Steeper line, less resistance. Drag the resistance and watch the line pivot about the origin."
+        },
+        {
+          "text": "<b>Resistance is the whole line, not one point.</b> That distinction looks pedantic here and matters enormously on the next slide."
+        }
+      ]
+    },
+    {
+      "id": "non-ohmic",
+      "type": "split",
+      "ref": "V01-S05",
+      "eyebrow": "Where it breaks",
+      "title": "Put a diode on<br>the <span class=\"hl\">same axes</span>",
+      "titleSize": 38,
+      "leftFlex": 1.1,
+      "rightFlex": 1.1,
+      "widget": "iv-curve",
+      "widgetTitle": "Interactive I\u2013V curve \u2014 device comparison",
+      "points": [
+        {
+          "text": "<b>The line becomes a curve.</b> Almost no current below about 0.6 V, then current rises very steeply. Switch the device selector and compare."
+        },
+        {
+          "text": "<b>So what is its resistance?</b> V/I gives a different answer at every point on the curve. The question has no single answer.",
+          "tone": "fault"
+        },
+        {
+          "text": "<b>Engineers answer it two ways.</b> V/I at one operating point is the DC resistance. The local slope there is the dynamic resistance. They are different numbers."
+        },
+        {
+          "text": "<b>Lamps, thermistors, transistors, LEDs.</b> All non-ohmic. Ohmic components are a special case you happen to meet first.",
+          "tone": "ready"
+        }
+      ],
+      "callout": "This is why the wheel is dangerous on its own: every formula on it silently assumes R is a constant."
+    },
+    {
+      "id": "power-enters",
+      "type": "parallel",
+      "ref": "V01-S06",
+      "eyebrow": "The second relationship",
+      "title": "Power is the rate<br>energy is <span class=\"hl\">delivered</span>",
+      "titleSize": 40,
+      "lead": "Voltage and current describe what the electricity is doing. Power describes what it costs, how hot the part gets, and how big the heatsink has to be. P = VI, measured in watts, which is joules per second.",
+      "columns": [
+        {
+          "label": "Energy",
+          "tone": "gain",
+          "items": [
+            "Measured in joules, or watt-hours",
+            "A total \u2014 how much was delivered",
+            "What a battery stores and an electricity bill charges for",
+            "Depends on how long you ran for"
+          ]
+        },
+        {
+          "label": "Power",
+          "tone": "cost",
+          "items": [
+            "Measured in watts",
+            "A rate \u2014 how fast it is being delivered",
+            "What sets the temperature of a component",
+            "Independent of how long you ran for"
+          ]
+        }
+      ],
+      "callout": "Components are rated in watts, not joules. A resistor does not care how long you leave it on \u2014 it cares how fast it has to shed heat."
+    },
+    {
+      "id": "power-forms",
+      "type": "equations",
+      "ref": "V01-S07",
+      "eyebrow": "Three forms",
+      "title": "Substitute Ohm's law<br>into P = VI",
+      "titleSize": 38,
+      "lead": "The two extra forms are not new physics. They are P = VI with V or I eliminated using V = IR. Reach for whichever form matches the two quantities you already know.",
+      "formulas": [
+        {
+          "label": "When you know current",
+          "expression": "P = I<sup>2</sup>R",
+          "note": "Substituted V = IR. Use this for anything carrying a known current: wiring, shunts, MOSFETs while conducting, transformer windings."
+        },
+        {
+          "label": "When you know voltage",
+          "expression": "P = V<sup>2</sup> / R",
+          "note": "Substituted I = V/R. Use this for anything sitting across a known voltage: a pull-up, a bleeder resistor, a load on a fixed supply."
+        }
+      ],
+      "points": [
+        {
+          "text": "<b>All three are the same statement.</b> P = VI, P = I\u00b2R, P = V\u00b2/R. Which one saves you an algebra step depends on what you measured."
+        },
+        {
+          "text": "<b>Both substitutions assume R is constant.</b> On a diode or a lamp, only P = VI survives.",
+          "tone": "fault"
+        }
+      ]
+    },
+    {
+      "id": "i-squared-r",
+      "type": "split",
+      "ref": "V01-S08",
+      "eyebrow": "The one that bites",
+      "title": "Double the current,<br><span class=\"hl\">quadruple</span> the heat",
+      "titleSize": 40,
+      "leftFlex": 1.2,
+      "rightFlex": 1,
+      "widget": "i2r-heat",
+      "widgetTitle": "Interactive I\u00b2R dissipation",
+      "points": [
+        {
+          "text": "<b>The square is the whole story.</b> Power in a fixed resistance scales with the square of current. Drag the slider and watch the dissipation curve away from the current."
+        },
+        {
+          "text": "<b>A 20% current margin is a 44% power margin.</b> This is why current headroom disappears faster than engineers expect."
+        },
+        {
+          "text": "<b>It runs away.</b> Most conductors gain resistance as they heat, which raises I\u00b2R, which heats them further. Copper gains roughly 0.4% per \u00b0C.",
+          "tone": "fault"
+        },
+        {
+          "text": "<b>Nearly every thermal problem is this term.</b> Wire gauge, fuse ratings, trace widths, connector selection \u2014 all of it is I\u00b2R.",
+          "tone": "ready"
+        }
+      ]
+    },
+    {
+      "id": "transmission",
+      "type": "split",
+      "ref": "V01-S09",
+      "eyebrow": "Worked example",
+      "title": "Why power lines<br>run at <span class=\"hl\">400,000 volts</span>",
+      "titleSize": 38,
+      "leftFlex": 1.15,
+      "rightFlex": 1,
+      "figure": "transmission",
+      "points": [
+        {
+          "text": "<b>Deliver 100 MW down a line of 5 \u03a9.</b> The power delivered is fixed by the customer. The voltage you send it at is your choice."
+        },
+        {
+          "text": "<b>At 10 kV:</b> I = 10 kA, so loss = I\u00b2R = 500 MW. You would need to generate six times what you deliver. Impossible.",
+          "tone": "fault"
+        },
+        {
+          "text": "<b>At 400 kV:</b> I = 250 A, so loss = 313 kW. Around 0.3% of what you sent.",
+          "tone": "ready"
+        },
+        {
+          "text": "<b>40\u00d7 the voltage, 1600\u00d7 less loss.</b> The entire high-voltage grid exists because of the square in I\u00b2R. Transformers exist to make this trade available."
+        }
+      ]
+    },
+    {
+      "id": "resistor-rating",
+      "type": "split",
+      "ref": "V01-S10",
+      "eyebrow": "Worked example",
+      "title": "The quarter-watt part<br>that <span class=\"hl\">smokes</span>",
+      "titleSize": 38,
+      "leftFlex": 1.15,
+      "rightFlex": 1,
+      "figure": "resistor-rating",
+      "points": [
+        {
+          "text": "<b>A 220 \u03a9 resistor across 12 V.</b> I = 12/220 = 55 mA. P = V\u00b2/R = 144/220 = 0.65 W."
+        },
+        {
+          "text": "<b>A standard through-hole resistor is rated 0.25 W.</b> You are asking it to dissipate more than twice that. It will discolour, drift, then fail.",
+          "tone": "fault"
+        },
+        {
+          "text": "<b>The resistance was never wrong.</b> The circuit works exactly as calculated \u2014 right up until the part cooks. Ohm's law said nothing about this."
+        },
+        {
+          "text": "<b>Derate.</b> Pick a part rated at roughly twice the calculated dissipation. Here that means a 2 W resistor, or a different circuit.",
+          "tone": "ready"
+        }
+      ],
+      "callout": "Every component has a rating that lives outside Ohm's law. Checking it is a separate step, and it is the step beginners skip."
+    },
+    {
+      "id": "four-space",
+      "type": "split",
+      "ref": "V01-S11",
+      "eyebrow": "The whole picture",
+      "title": "Any two fix<br>the other <span class=\"hl\">two</span>",
+      "titleSize": 40,
+      "leftFlex": 1.1,
+      "rightFlex": 1,
+      "widget": "ohm-solver",
+      "widgetTitle": "Interactive four-quantity solver",
+      "points": [
+        {
+          "text": "<b>V, I, R and P are one system with two degrees of freedom.</b> Set any two and the remaining two are already determined. Try any pair in the solver."
+        },
+        {
+          "text": "<b>This is what the wheel was trying to say.</b> Twelve formulas, six pairs, one relationship. Nothing to memorise."
+        },
+        {
+          "text": "<b>In practice two are usually given to you.</b> The supply fixes V. The datasheet fixes R, or the load fixes P. You solve for what is left."
+        },
+        {
+          "text": "<b>And it all rests on R being constant.</b> Which, four slides ago, we established is a special case.",
+          "tone": "fault"
+        }
+      ]
+    },
+    {
+      "id": "mistakes",
+      "type": "parallel",
+      "ref": "V01-S12",
+      "eyebrow": "Before you go",
+      "title": "Four ways this<br>goes wrong",
+      "titleSize": 40,
+      "lead": "None of these are failures of the equation. They are failures to notice what the equation assumes.",
+      "columns": [
+        {
+          "label": "Arithmetic and units",
+          "tone": "cost",
+          "items": [
+            "Kilohms and milliamps left unconverted \u2014 a factor of 1000",
+            "Voltage read as absolute rather than as a difference between two nodes",
+            "Reading the ohms wheel's P = V\u00b2/R and forgetting V is the drop across that part, not the supply"
+          ]
+        },
+        {
+          "label": "Assumptions",
+          "tone": "cost",
+          "items": [
+            "Treating R as constant when the part is heating",
+            "Applying V = IR to a diode, an LED, or a lamp",
+            "Sizing a resistor for resistance and never checking its power rating"
+          ]
+        }
+      ],
+      "callout": "If a circuit behaves as calculated at first and drifts after a minute, suspect temperature before you suspect your algebra."
+    },
+    {
+      "id": "close",
+      "type": "parallel",
+      "ref": "V01-S13",
+      "eyebrow": "Competent",
+      "title": "What you can<br>now do",
+      "titleSize": 40,
+      "lead": "The wheel is now a consequence rather than a thing to memorise, and you know the boundary of where it applies.",
+      "columns": [
+        {
+          "label": "You can now",
+          "tone": "gain",
+          "items": [
+            "Solve for any of V, I, R, P given any two",
+            "Read an I\u2013V curve and say whether a device is ohmic",
+            "Size a resistor for power as well as resistance",
+            "Explain why the grid runs at high voltage"
+          ]
+        },
+        {
+          "label": "Next",
+          "tone": "gain",
+          "items": [
+            "Series and parallel resistors \u2014 why parallel is less than the smallest",
+            "The voltage divider, and what loading does to it",
+            "Kirchhoff's laws, which are the bookkeeping around all of this"
+          ]
+        }
+      ],
+      "callout": "The paired calculator solves all four quantities with unit handling, if you want the arithmetic done for you."
+    }
+  ]
+}
